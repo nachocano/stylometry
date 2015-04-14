@@ -85,16 +85,19 @@ public class DiffsSentencesDriver {
 					}
 					System.out.println("   document: " + document.getName());
 					raws.put(
-							new FileKey(document.getName(), document.getPath()),
+							new FileKey(document.getName(), document
+									.getAbsolutePath()),
 							getLineNumbers(document));
 					final File parsedDocument = new File(failSuccessOutputF,
 							document.getName() + ".pcfg");
 					if (!parsedDocument.exists()) {
-						pw.println(document.toString());
+						pw.println(document.toString() + "\t"
+								+ parsedDocument.toString());
 					} else {
 						parsed.put(
 								new FileKey(parsedDocument.getName().replace(
-										".pcfg", ""), parsedDocument.getPath()),
+										".pcfg", ""), parsedDocument
+										.getAbsolutePath()),
 								getLineNumbers(parsedDocument));
 					}
 				}
@@ -111,7 +114,7 @@ public class DiffsSentencesDriver {
 						System.out.println(String.format(
 								"file: %s, rawCount: %s, parsedCount: %s",
 								rKey.path, rawCount, parsedCount));
-						pw.println(rKey.path);
+						pw.println(rKey.path + "\t" + key.path);
 						break;
 					}
 				}
