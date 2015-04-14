@@ -17,6 +17,9 @@ import org.apache.commons.lang3.Validate;
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
 
+/**
+ * Parse Novels with Stanford Parser
+ */
 public class ParserDriver {
 
 	public static void main(final String[] args) throws Exception {

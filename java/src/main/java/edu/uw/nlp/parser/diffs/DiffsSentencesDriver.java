@@ -18,6 +18,11 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.Validate;
 
+/**
+ * To identify which novels weren't parsed correctly (mainly due to out of
+ * memory problems)
+ * 
+ */
 public class DiffsSentencesDriver {
 
 	public static void main(final String[] args) throws Exception {
