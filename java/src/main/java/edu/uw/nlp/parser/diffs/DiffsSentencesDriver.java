@@ -99,7 +99,7 @@ public class DiffsSentencesDriver {
 		for (final FileKey key : parsed.keySet()) {
 			final Integer rawCount = raws.get(key);
 			final Integer parsedCount = parsed.get(key);
-			if (rawCount != parsedCount) {
+			if (!rawCount.equals(parsedCount)) {
 				// ugly stuff
 				for (final FileKey rKey : raws.keySet()) {
 					if (rKey.equals(key)) {
