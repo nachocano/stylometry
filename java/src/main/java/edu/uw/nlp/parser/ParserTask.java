@@ -33,11 +33,26 @@ public class ParserTask implements Callable<Void> {
 		Validate.notNull(inputDoc);
 		Validate.notNull(outputFolder);
 		Validate.notNull(lp);
+		Validate.notNull(tlp);
 		this.name = inputDoc.getName();
 		this.output = new File(outputFolder, inputDoc.getName() + ".pcfg");
 		this.input = inputDoc;
 		this.lp = lp;
 		this.tlp = tlp;
+	}
+
+	public ParserTask(final LexicalizedParser lp,
+			final TreebankLanguagePack tlp, final String input,
+			final String output) {
+		Validate.notNull(input);
+		Validate.notNull(output);
+		Validate.notNull(lp);
+		Validate.notNull(tlp);
+		this.lp = lp;
+		this.tlp = tlp;
+		this.input = new File(input);
+		this.name = this.input.getName();
+		this.output = new File(output);
 	}
 
 	@Override

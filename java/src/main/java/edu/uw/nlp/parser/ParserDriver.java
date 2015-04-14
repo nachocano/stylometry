@@ -3,9 +3,6 @@ package edu.uw.nlp.parser;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -16,6 +13,7 @@ import org.apache.commons.lang3.Validate;
 
 import edu.stanford.nlp.parser.lexparser.LexicalizedParser;
 import edu.stanford.nlp.trees.TreebankLanguagePack;
+import edu.uw.nlp.concurrent.Utils;
 
 /**
  * Parse Novels with Stanford Parser
@@ -97,23 +95,10 @@ public class ParserDriver {
 		System.out.println("created folders and files. processing...");
 		final long start = System.currentTimeMillis();
 
-		final ExecutorService executor = Executors.newFixedThreadPool(2);
-		try {
-			final List<Future<Void>> futures = executor.invokeAll(tasks);
-			for (final Future<Void> f : futures) {
-				f.get();
-			}
-		} catch (final InterruptedException e) {
-			System.out.println(String.format(
-					"error: interrupted exception: %s", e.getMessage()));
-		} catch (final Exception e) {
-			System.out.println(String.format("error: exception: %s",
-					e.getMessage()));
-		} finally {
-			executor.shutdown();
-		}
+		Utils.parallelExecute(tasks);
 
 		System.out.println(String.format("total time during processing %s",
 				(System.currentTimeMillis() - start) / 1000));
 	}
+
 }
