@@ -1,4 +1,4 @@
-package edu.uw.nlp;
+package edu.uw.nlp.parser;
 
 import java.io.File;
 import java.util.ArrayList;
