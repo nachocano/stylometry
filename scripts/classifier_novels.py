@@ -74,7 +74,7 @@ def main():
     y = data[:,3]
     x = data[:,4:]
 
-    x = utils.to_multitask(x, cxt[:,1])
+    #x = utils.to_multitask(x, cxt[:,1])
 
     parameters = utils.build_parameters(args.classifier)
     folds = np.unique(cxt[:,2])
@@ -83,26 +83,26 @@ def main():
     for fold in folds:
         print 'executing fold %d ----' % int(fold)
         x_train, y_train, cxt_train, x_test, y_test, cxt_test = build_data(x, y, cxt, fold)
-        best_accuracy = 0.0
-        best_params = None
+        best_accuracies = defaultdict(lambda: defaultdict(int))
         results[int(fold)] = {}
         for params in parameters:
             print 'param %s' % params
             clf = utils.create_classifier(args.classifier, params)
             predictions = utils.execute(clf, x_train, y_train, x_test)
-            p, r, f1, acc = utils.evaluate(y_test, predictions)
-            if best_accuracy < acc:
-                print 'updating best results for fold %s' % fold
-                best_params = params
-                best_accuracy = acc
-                results[int(fold)] = update_fold_results(cxt_test, y_test, predictions)
-
+            p_results = update_fold_results(cxt_test, y_test, predictions)
+            for genre in p_results:
+                acc_genre = p_results[genre][3]
+                if acc_genre > best_accuracies[int(fold)][genre]:
+                    print 'updating best results for fold %s for genre' % (fold, genre)  
+                    best_accuracies[int(fold)][genre] = acc_genre
+                    results[int(fold)][genre] = p_results[genre]
+               
     print 'computing averages results'
     avg_results = defaultdict(lambda: defaultdict(int))
     for result in results:
         result_per_fold = results[result]
         for gen in result_per_fold:
-            p,r,f1, acc = result_per_fold[gen]
+            p,r,f1,acc = result_per_fold[gen]
             avg_results[gen]['P'] += p
             avg_results[gen]['R'] += r
             avg_results[gen]['F'] += f1
