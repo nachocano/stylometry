@@ -31,7 +31,7 @@ def main():
       sentence_nr = search_obj.group(5)
       books[(did, gid, fid, label)].append(sentence_nr)
 
-  print 'book lenght: %s' % len(books)
+  print 'book length: %s' % len(books)
 
   i = 0
   new_books = {}

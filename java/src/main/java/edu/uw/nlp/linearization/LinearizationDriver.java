@@ -7,8 +7,6 @@ import java.io.FileOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
-import java.util.ArrayList;
-import java.util.List;
 
 import org.apache.commons.cli.BasicParser;
 import org.apache.commons.cli.CommandLine;
@@ -24,12 +22,14 @@ public class LinearizationDriver {
 		options.addOption("i1", true, "raw sent folder");
 		options.addOption("i2", true, "parsed folder");
 		options.addOption("o", true, "linearized folder");
+		options.addOption("l", true, "linearizer");
 
 		final CommandLineParser parser = new BasicParser();
 
 		String input1Folder = null;
 		String input2Folder = null;
 		String outputFolder = null;
+		String linearizerName = null;
 
 		try {
 			final CommandLine line = parser.parse(options, args);
@@ -39,6 +39,8 @@ public class LinearizationDriver {
 			Validate.notNull(input2Folder);
 			outputFolder = line.getOptionValue("o");
 			Validate.notNull(outputFolder);
+			linearizerName = line.getOptionValue("l");
+			Validate.notNull(linearizerName);
 		} catch (final Exception e) {
 			final HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("parser", options);
@@ -50,6 +52,10 @@ public class LinearizationDriver {
 		final File input1F = new File(input1Folder);
 		final File input2F = new File(input2Folder);
 		final File outputF = new File(outputFolder);
+
+		final Linearizer linearizer = LinearizationFactory
+				.createLinearizer(linearizerName);
+
 		if (!outputF.exists()) {
 			outputF.mkdir();
 		}
@@ -110,7 +116,9 @@ public class LinearizationDriver {
 							while ((rawSentence = readerRaw.readLine()) != null
 									&& (parsedSentence = readerParsed
 											.readLine()) != null) {
-
+								final String linearized = linearizer.linearize(
+										rawSentence, parsedSentence);
+								pw.println(linearized);
 							}
 
 						} catch (final Exception exc) {
@@ -133,11 +141,4 @@ public class LinearizationDriver {
 				(System.currentTimeMillis() - start) / 1000));
 	}
 
-	private static List<String> getPatternsPerSentence(final String rawSentence) {
-		final List<String> patterns = new ArrayList<>();
-		for (final String terminal : rawSentence.split(" ")) {
-			patterns.add("\\((\\w+)\\s\\b" + terminal + "\\b\\s\\)\\w+");
-		}
-		return patterns;
-	}
 }
