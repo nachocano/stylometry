@@ -49,7 +49,7 @@ def main():
       label = search_obj.group(4)
       size = len(books[(did, gid, fid, label)])
       if (did, gid, fid, label) not in  new_books:
-        new_books[(did, gid, fid, label)] = np.zeros([size,100])
+        new_books[(did, gid, fid, label)] = np.zeros([size,args.embeddings_dimension])
         new_books_next_idx[(did, gid, fid, label)] = 0
       new_books[(did, gid, fid, label)][new_books_next_idx[(did, gid, fid, label)]] = np.array(sentence[1:]).astype(np.float32)
       new_books_next_idx[(did, gid, fid, label)] += 1

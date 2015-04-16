@@ -29,8 +29,8 @@ def main():
         label = labels[fail_success[:-1]]
         for document in os.listdir(fail_success_folder):
           d = os.path.join(fail_success_folder, document)
-          if os.path.isfile(d) and d.endswith('.txt'):
-            did = document[:-4] #removing .txt
+          if os.path.isfile(d) and not d.startswith('.'):
+            did = document[:document.rfind('.')] # removing extension
             i = 0
             for line in open(d).read().splitlines():
               print 'SENT_%s_%s_%s_%s_%d %s' % (did, gid, fid, label, i, line)
