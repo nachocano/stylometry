@@ -98,7 +98,7 @@ def main():
                     print 'updating best results for fold %s, for gen %s' % (fold, gen)
                     best_params = params
                     best_accuracy = acc
-	                results[gen][int(fold)] = update_fold_results(y_test[gen], predictions)
+	            results[gen][int(fold)] = update_fold_results(y_test[gen], predictions)
 
     print 'computing averages results'
     avg_results = defaultdict(lambda: defaultdict(int))
