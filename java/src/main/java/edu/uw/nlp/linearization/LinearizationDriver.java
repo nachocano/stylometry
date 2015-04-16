@@ -53,7 +53,7 @@ public class LinearizationDriver {
 		final File input2F = new File(input2Folder);
 		final File outputF = new File(outputFolder);
 
-		final Linearizer linearizer = LinearizationFactory
+		final Linearizer linearizer = LinearizerFactory
 				.createLinearizer(linearizerName);
 
 		if (!outputF.exists()) {
@@ -124,9 +124,13 @@ public class LinearizationDriver {
 						} catch (final Exception exc) {
 							System.out.println(String.format("exception: %s",
 									exc.getMessage()));
+							return;
 						} finally {
 							if (readerRaw != null) {
 								readerRaw.close();
+							}
+							if (readerParsed != null) {
+								readerParsed.close();
 							}
 							if (pw != null) {
 								pw.close();

@@ -1,10 +1,36 @@
 package edu.uw.nlp.linearization;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Stack;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import edu.uw.nlp.utils.Utils;
 
 public abstract class Linearizer {
 
-	public abstract String linearize(String rawInput, String parsedInput);
+	public String linearize(final String rawInput, final String parsedInput) {
+		final String newRawInput = Utils.cleanup(rawInput);
+		final List<String> patternsStr = getPatternsPerSentence(newRawInput);
+		final List<Pattern> patterns = new ArrayList<>();
+		for (final String patt : patternsStr) {
+			patterns.add(Pattern.compile(patt));
+		}
+		int matches = 0;
+		String result = Utils.cleanup(parsedInput);
+		for (final Pattern p : patterns) {
+			final Matcher matcher = p.matcher(result);
+			if (matcher.find()) {
+				result = matcher.replaceAll(matcher.group(1));
+				matches++;
+			}
+		}
+		assert matches == patterns.size();
+		return postProcess(result);
+	}
+
+	protected abstract List<String> getPatternsPerSentence(String rawSentence);
 
 	public String postProcess(final String linearized) {
 		final StringBuilder sb = new StringBuilder();

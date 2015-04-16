@@ -1,12 +1,12 @@
 package edu.uw.nlp.linearization;
 
 
-public class LinearizationFactory {
+public class LinearizerFactory {
 
 	private static final String NO_POS = "nopos";
 	private static final String NO_WORDS = "nowords";
 
-	private LinearizationFactory() {
+	private LinearizerFactory() {
 	}
 
 	public static Linearizer createLinearizer(final String name) {
