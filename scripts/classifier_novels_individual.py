@@ -87,22 +87,18 @@ def main():
         print 'executing fold %d ----' % int(fold)
         x_train, y_train, cxt_train, x_test, y_test, cxt_test = build_data(x, y, cxt, fold)
         for gen in x_train:
-            best_f1 = 0.0
+            best_accuracy = 0.0
             best_params = None
-            best_p = 0.0
-            best_r = 0.0
             for params in parameters:
                 print 'param %s' % params
                 clf = utils.create_classifier(args.classifier, params)
                 predictions = utils.execute(clf, x_train[gen], y_train[gen], x_test[gen])
-                p, r, f1 = utils.evaluate(y_test[gen], predictions)
-                if best_f1 < f1:
+                p, r, f1, acc = utils.evaluate(y_test[gen], predictions)
+                if best_accuracy < acc:
                     print 'updating best results for fold %s, for gen %s' % (fold, gen)
                     best_params = params
-                    best_p = p
-                    best_r = r
-                    best_f1 = f1
-	            results[gen][int(fold)] = update_fold_results(y_test[gen], predictions)
+                    best_accuracy = acc
+	                results[gen][int(fold)] = update_fold_results(y_test[gen], predictions)
 
     print 'computing averages results'
     avg_results = defaultdict(lambda: defaultdict(int))

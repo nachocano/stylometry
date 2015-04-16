@@ -7,6 +7,7 @@ from sklearn import cross_validation
 import numpy as np
 import time
 from collections import defaultdict
+from sklearn.metrics import accuracy_score
 
 genres_dict = {1 : 'Adventure_Stories', 2: 'Fiction' , 3: 'Historical_Fiction', 4: 'Love_Stories', 5: 'Mystery', 6: 'Poetry', 7: 'Science_Fiction', 8: 'Short_Stories'}
 
@@ -77,7 +78,8 @@ def test(model, x):
 
 def evaluate(y_truth, y_pred):
     precision, recall, f1, _ = precision_recall_fscore_support(y_truth, y_pred, average='micro')
-    return precision, recall, f1
+    accuracy = accuracy_score(y_truth, y_pred)
+    return precision, recall, f1, accuracy
 
 def execute(clf, x_train, y_train, x_test):
     clf = train(clf, x_train, y_train)
