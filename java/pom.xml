@@ -70,7 +70,7 @@
 				<configuration>
 					<archive>
 						<manifest>
-							<mainClass>edu.uw.nlp.parser.diffs.DiffsSentencesDriver</mainClass>
+							<mainClass>edu.uw.nlp.parser.diffs.ParserMissingDriver</mainClass>
 						</manifest>
 					</archive>
 					<descriptorRefs>
