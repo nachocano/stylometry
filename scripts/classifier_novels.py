@@ -93,7 +93,7 @@ def main():
             for genre in p_results:
                 acc_genre = p_results[genre][3]
                 if acc_genre > best_accuracies[int(fold)][genre]:
-                    print 'updating best results for fold %s for genre' % (fold, genre)  
+                    print 'updating best results for fold %s for genre %s' % (fold, genre)  
                     best_accuracies[int(fold)][genre] = acc_genre
                     results[int(fold)][genre] = p_results[genre]
                
