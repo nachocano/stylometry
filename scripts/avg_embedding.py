@@ -4,7 +4,6 @@ import argparse
 import time
 import numpy as np
 from collections import defaultdict
-from gensim.models import word2vec
 from gensim import matutils
 from operator import itemgetter
 import re
