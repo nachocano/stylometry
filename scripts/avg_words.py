@@ -29,7 +29,7 @@ def main():
 
   books = {}
   counts = {}
-  p = re.compile(ur'^SENT_(\d+)_(\d)_(\d)_(\d)_(\d+)$')
+  p = re.compile(ur'^_\*(\d+)_(\d)_(\d)_(\d)$')
   for line in open(args.input_file).read().splitlines():
     line_splitted = line.split()
     sentence = line_splitted[0]
@@ -39,7 +39,6 @@ def main():
       gid = search_obj.group(2)
       fid = search_obj.group(3)
       label = search_obj.group(4)
-      sentence_nr = search_obj.group(5)
       key = (did, gid, fid, label)
       if not books[key]:
         books[key] = np.zeros(args.embeddings_dimension)
