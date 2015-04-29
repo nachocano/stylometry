@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
  * Contains words but without their POS. Example, a tree that has S -> NP ->
  * NNP-> Dogs would become S -> NP -> Dogs
  */
-public class NoPosLinearizer extends Linearizer {
+public class NoPosLinearizer extends BasicLinearizer {
 
 	@Override
 	protected List<String> getPatternsPerSentence(final String rawSentence) {

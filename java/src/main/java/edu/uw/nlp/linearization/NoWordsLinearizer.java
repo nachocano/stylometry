@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Pattern;
 
-public class NoWordsLinearizer extends Linearizer {
+public class NoWordsLinearizer extends BasicLinearizer {
 
 	@Override
 	protected List<String> getPatternsPerSentence(final String rawSentence) {

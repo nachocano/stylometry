@@ -23,6 +23,7 @@ public class LinearizationDriver {
 		options.addOption("i2", true, "parsed folder");
 		options.addOption("o", true, "linearized folder");
 		options.addOption("l", true, "linearizer");
+		options.addOption("p", true, "params");
 
 		final CommandLineParser parser = new BasicParser();
 
@@ -30,6 +31,7 @@ public class LinearizationDriver {
 		String input2Folder = null;
 		String outputFolder = null;
 		String linearizerName = null;
+		String params = null;
 
 		try {
 			final CommandLine line = parser.parse(options, args);
@@ -41,6 +43,7 @@ public class LinearizationDriver {
 			Validate.notNull(outputFolder);
 			linearizerName = line.getOptionValue("l");
 			Validate.notNull(linearizerName);
+			params = line.getOptionValue("p");
 		} catch (final Exception e) {
 			final HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("parser", options);
@@ -55,6 +58,7 @@ public class LinearizationDriver {
 
 		final Linearizer linearizer = LinearizerFactory
 				.createLinearizer(linearizerName);
+		linearizer.init(params);
 
 		if (!outputF.exists()) {
 			outputF.mkdir();
