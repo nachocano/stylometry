@@ -35,16 +35,16 @@ def main():
         start = time.time()
         logging.info('training epoch %s with alpha %s' % (epoch, model.alpha))
         model.train(train_sentences)
-        model.alpha = start_alpha - 1 / (epoch+1)
+        model.alpha -= 0.002
         if model.alpha < start_alpha * 0.0001:
             model.alpha = start_alpha * 0.0001
         model.min_alpha = model.alpha
         elapsed = time.time() - start
         logging.info('epoch %s training took %s' % (epoch, elapsed))
 
-    model.save(args.output)
+    model.save(args.output_file)
     # save it in the other format as well
-    model.save_word2vec_format(args.output + '.w2v.txt', binary=False)
+    model.save_word2vec_format(args.output_file + '.w2v.txt', binary=False)
 
     total_time = time.time() - begin
     logging.info('overall run took %s' % total_time)
