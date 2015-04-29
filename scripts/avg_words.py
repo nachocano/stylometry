@@ -7,6 +7,7 @@ import numpy as np
 from collections import defaultdict
 from gensim import matutils
 from operator import itemgetter
+import re
 
 
 def main():
@@ -22,13 +23,13 @@ def main():
 
   start = time.time()
   print 'loading file %s' % args.embeddings_file
-  model = word2vec.Word2Vec.load_word2vec_format(args.embeddings_file, binary=False)
+  model = word2vec.Word2Vec.load_word2vec_format(args.embeddings_file, binary=True)
   model.init_sims()
   elapsed = time.time() - start
   print 'loaded in %s' % elapsed
 
   books = {}
-  counts = {}
+  counts = defaultdict(int)
   p = re.compile(ur'^_\*(\d+)_(\d)_(\d)_(\d)$')
   for line in open(args.input_file).read().splitlines():
     line_splitted = line.split()
@@ -40,7 +41,7 @@ def main():
       fid = search_obj.group(3)
       label = search_obj.group(4)
       key = (did, gid, fid, label)
-      if not books[key]:
+      if key not in books:
         books[key] = np.zeros(args.embeddings_dimension)
       for word in line_splitted[1:]:
         word = word.strip()

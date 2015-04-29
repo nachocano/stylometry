@@ -4,7 +4,6 @@ import argparse
 import time
 import numpy as np
 from collections import defaultdict
-from gensim import matutils
 from operator import itemgetter
 import re
 
@@ -12,7 +11,7 @@ import re
 def main():
   parser = argparse.ArgumentParser(description='TODO')
   parser.add_argument('-i1', '--input_file1', required=True)
-  parser.add_argument('-i2', '--input_file2', require=True)
+  parser.add_argument('-i2', '--input_file2', required=True)
   parser.add_argument('-o', '--output_file', required=True)
   args = parser.parse_args()
 
