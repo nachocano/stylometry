@@ -1,6 +1,6 @@
 package edu.uw.nlp
 
-import java.io.{FileOutputStream, OutputStreamWriter, PrintWriter, File}
+import java.io._
 
 import nlp_serde.readers.PerLineJsonReader
 
@@ -37,36 +37,46 @@ object NYTParser {
     }
     var count : Int = 0
     val inputFiles = new File(args(3)).listFiles()
-    for (file <- inputFiles) {
-      for (d <- new PerLineJsonReader(true).read(file.getAbsolutePath)) {
-        if (d.path.get != null) {
-          if (map.contains(d.path.get)) {
-            count += 1
-            val newFileName = d.path.get.replaceAll("/", "_")
-            val textDir = new File(outputTextDir, map(d.path.get))
-            if (!textDir.exists()) {
-              textDir.mkdir()
-            }
-            val parseDir = new File(outputParseDir, map(d.path.get))
-            if (!parseDir.exists()) {
-              parseDir.mkdir()
-            }
-            val textFile = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
-              new File(textDir, newFileName)), "utf-8"))
-            val parsedFile = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
-              new File(parseDir, newFileName + ".pcfg")), "utf-8"))
-            for (s <- d.sentences) {
-              textFile.println(s.text)
-              parsedFile.println(s.parseTree.get)
-            }
-            textFile.close()
-            parsedFile.close()
-          } else {
-            println(d.path.get + " not in the list")
+      for (file <- inputFiles) {
+        println("processing file " + file.getName)
+        try {
+        for (d <- new PerLineJsonReader(true).read(file.getAbsolutePath)) {
+
+            if (d.path.get != null) {
+              if (map.contains(d.path.get)) {
+                println(d.path.get + " in the list")
+                count += 1
+                val newFileName = d.path.get.replaceAll("/", "_")
+                val textDir = new File(outputTextDir, map(d.path.get))
+                if (!textDir.exists()) {
+                  textDir.mkdir()
+                }
+                val parseDir = new File(outputParseDir, map(d.path.get))
+                if (!parseDir.exists()) {
+                  parseDir.mkdir()
+                }
+                val textFile = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
+                  new File(textDir, newFileName)), "utf-8"))
+                val parsedFile = new PrintWriter(new OutputStreamWriter(new FileOutputStream(
+                  new File(parseDir, newFileName + ".pcfg")), "utf-8"))
+                for (s <- d.sentences) {
+                  textFile.println(s.text)
+                  parsedFile.println(s.parseTree.get)
+                }
+                textFile.close()
+                parsedFile.close()
+              } else {
+                println(d.path.get + " not in the list")
+              }
+             }
+          }
+        } catch {
+          case ex: EOFException => {
+            println("Exception message: " + ex.getMessage)
           }
         }
       }
-    }
+
     println("map size: " + map.size + ", count size: " + count)
   }
 
