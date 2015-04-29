@@ -2,6 +2,7 @@ import argparse
 import time
 import numpy as np
 from gensim import models, utils
+import logging
 
 def main():
     parser = argparse.ArgumentParser(description='TODO')
@@ -18,31 +19,35 @@ def main():
 
     args = parser.parse_args()
 
-    start = time.time()
+    begin = time.time()
     # should be two different input files
     train_sentences = build_sentences(args.input_file)
-
-    model = models.Doc2Vec(size=args.dimension, alpha=0.025, window=args.window, min_count=args.min_count, sample=args.sample, 
-        seed=1, workers=8, min_alpha=0.025, dm=args.dist_memory, hs=args.hier_sampling, n=args.negative, dm_mean=0, train_words=True, train_lbls=True)
-    print 'building vocab'
+    
+    start_alpha = 0.025
+    model = models.Doc2Vec(size=args.dimension, alpha=start_alpha, window=args.window, min_count=args.min_count, sample=args.sample, 
+        seed=1, workers=8, min_alpha=start_alpha, dm=args.dist_memory, hs=args.hier_sampling, negative=args.negative, dm_mean=0, train_words=True, train_lbls=True)
+    logging.info('building vocab')
+    start = time.time()
     model.build_vocab(train_sentences)
-    print 'vocab built'
+    logging.info('vocab built in %s' % (time.time() - start))
 
     for epoch in xrange(args.iterations):
-        epoch_start = time.time()
-        print 'epoch %s' % epoch
+        start = time.time()
+        logging.info('training epoch %s with alpha %s' % (epoch, model.alpha))
         model.train(train_sentences)
-        model.alpha -= 0.002
+        model.alpha = start_alpha - 1 / (epoch+1)
+        if model.alpha < start_alpha * 0.0001:
+            model.alpha = start_alpha * 0.0001
         model.min_alpha = model.alpha
-        elapsed = time.time() - epoch_start
-        print 'epoch %s training took %s' % (epoch, elapsed)
+        elapsed = time.time() - start
+        logging.info('epoch %s training took %s' % (epoch, elapsed))
 
     model.save(args.output)
     # save it in the other format as well
     model.save_word2vec_format(args.output + '.w2v.txt', binary=False)
 
-    total_time = time.time() - start
-    print 'overall run took %s' % total_time
+    total_time = time.time() - begin
+    logging.info('overall run took %s' % total_time)
     
     # need to build the test sentences
     # test_sentences = build_sentences(args.input_file)
@@ -79,7 +84,7 @@ def build_sentences(input_file):
         # single label
         label = [line_splitted[0]]
         sentences.append(models.doc2vec.LabeledSentence(words, label))
-    print 'sentences built, took %s' % (time.time() - build_start)
+    logging.info('sentences built, took %s' % (time.time() - build_start))
     return sentences
 
 
@@ -110,5 +115,7 @@ def add_new_labels(sentences, model):
     return n_sentences
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s : %(threadName)s : %(levelname)s : %(message)s', level=logging.INFO)
+    logging.info("running doc2vec")
     main()
 
