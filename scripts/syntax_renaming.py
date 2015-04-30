@@ -59,7 +59,8 @@ def main():
                 mapping_raw[mapping[parsed]].append(l_raw.rstrip())
                 new_words.append(mapping[parsed])
             new_words_as_str = ' '.join(str(e) for e in new_words)
-            of.write('%s_%s_%s_%s %s\n' % (did, gid, fid, label, new_words_as_str))
+            #of.write('%s_%s_%s_%s %s\n' % (did, gid, fid, label, new_words_as_str))
+            of.write('%s\n' % (new_words_as_str))
   
   for key in mapping_raw:
     sentences = mapping_raw[key]

@@ -12,6 +12,8 @@ def main():
   parser.add_argument('-e', '--embeddings_file', required=True)
   parser.add_argument('-iv', '--input_vocab', required=True)
   parser.add_argument('-ir', '--input_raw', required=True)
+  parser.add_argument('-n', '--number_items', required=False, type=int, default=10)
+
   args = parser.parse_args()
 
   start = time.time()
@@ -34,20 +36,29 @@ def main():
     raw_dictionary[syn_name] = splitted
     counts[syn_name] += len(splitted)
 
-  most_common = [m[0] for m in counts.most_common(10)]
+  # most common syntaxes
+  most_common = [m[0] for m in counts.most_common(args.number_items)]
+
+  # most similar to the most common syntax
+  most_similar = [m[0] for m in model.most_similar(positive = counts.most_common(1)[0][0])]
+
+  svd_plot(model, most_common, lambda i, k : most_common[i])
+  svd_plot(model, most_similar, lambda i, k : syn_dictionary[k])
+
+def svd_plot(model, keys, fc):
   vectors = []
-  for syntax_name in most_common:
+  for syntax_name in keys:
     vectors.append(model.syn0[model.vocab[syntax_name].index])
   vectors = np.array(vectors)
   temp = vectors - np.mean(vectors, axis=0)
-  covariance = 1.0 / len(most_common) * temp.T.dot(temp)
+  covariance = 1.0 / len(keys) * temp.T.dot(temp)
   U,S,V = np.linalg.svd(covariance)
   coord = temp.dot(U[:,0:2])
-  for i in xrange(len(most_common)):
-    plt.text(coord[i,0], coord[i,1], most_common[i], bbox=dict(facecolor='green', alpha=0.1))
+  for i in xrange(len(keys)):
+    plt.text(coord[i,0], coord[i,1], fc(i, keys[i]), bbox=dict(facecolor='green', alpha=0.1))
   plt.xlim((np.min(coord[:,0]), np.max(coord[:,0])))
   plt.ylim((np.min(coord[:,1]), np.max(coord[:,1])))
-  plt.show()
+  plt.show()  
 
 
 
