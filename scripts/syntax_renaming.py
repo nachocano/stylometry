@@ -2,7 +2,7 @@ from __future__ import division
 import argparse
 import numpy as np
 import os
-from collections import Counter
+from collections import Counter, defaultdict
 
 def main():
   parser = argparse.ArgumentParser(description='TODO')
@@ -10,6 +10,7 @@ def main():
   parser.add_argument('-pif', '--parsed_input_folder', required=True)
   parser.add_argument('-of', '--output_file', required=True)
   parser.add_argument('-ov', '--output_vocab', required=True)
+  parser.add_argument('-or', '--output_raw', required=True)
   args = parser.parse_args()
 
   genres = {'Adventure_Stories' : 1, 'Fiction' : 2, 'Historical_Fiction': 3, 'Love_Stories': 4, 'Mystery' : 5, 'Poetry' : 6, 'Science_Fiction' : 7, 'Short_Stories' : 8}
@@ -17,9 +18,11 @@ def main():
 
   of = open(args.output_file, 'w')
   ov = open(args.output_vocab, 'w')
+  oraw = open(args.output_raw, 'w')
   index = 0
   dictionary = Counter()
   mapping = {}
+  mapping_raw = defaultdict(list)
   for genre in os.listdir(args.raw_input_folder):
     genre_folder_raw = os.path.join(args.raw_input_folder, genre)
     genre_folder_parsed = os.path.join(args.parsed_input_folder, genre)
@@ -50,12 +53,19 @@ def main():
                 parsed = l_parsed.strip()
                 if parsed not in mapping:
                   mapping[parsed] = 'SYN%d' % index
-                  ov.write('%s\t%s\t%s' % (mapping[parsed], parsed, l_raw))
+                  ov.write('%s\t%s\n' % (mapping[parsed], parsed))
                   index +=1
                 dictionary[mapping[parsed]] += 1
+                mapping_raw[mapping[parsed]].append(l_raw.rstrip())
                 new_words.append(mapping[parsed])
             new_words_as_str = ' '.join(str(e) for e in new_words)
             of.write('%s_%s_%s_%s %s\n' % (did, gid, fid, label, new_words_as_str))
+  
+  for key in mapping_raw:
+    sentences = mapping_raw[key]
+    sentences_as_str = '|^^|'.join(str(e) for e in sentences)
+    oraw.write('%s\t%s\n' % (key, sentences_as_str))
+  oraw.close()
   of.close()
   ov.close()
 
