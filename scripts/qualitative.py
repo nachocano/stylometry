@@ -40,10 +40,18 @@ def main():
   most_common = [m[0] for m in counts.most_common(args.number_items)]
 
   # most similar to the most common syntax
-  most_similar = [m[0] for m in model.most_similar(positive = counts.most_common(1)[0][0])]
+  most_common_syntax = counts.most_common(1)[0][0]
+  most_similar = [m[0] for m in model.most_similar(positive = most_common_syntax)]
 
   svd_plot(model, most_common, lambda i, k : most_common[i])
-  svd_plot(model, most_similar, lambda i, k : syn_dictionary[k])
+  #svd_plot(model, most_similar, lambda i, k : syn_dictionary[k])
+
+  output(most_similar, most_common_syntax, syn_dictionary)
+
+def output(most_similar, syntax, syn_dictionary):
+  print 'closest to %s' % syn_dictionary[syntax]
+  for word in most_similar:
+    print ' %s' % syn_dictionary[word]
 
 def svd_plot(model, keys, fc):
   vectors = []
@@ -59,30 +67,6 @@ def svd_plot(model, keys, fc):
   plt.xlim((np.min(coord[:,0]), np.max(coord[:,0])))
   plt.ylim((np.min(coord[:,1]), np.max(coord[:,1])))
   plt.show()  
-
-
-
-
-
-'''
-"_, wordVectors0, _ = load_saved_params()\n",
-"wordVectors = (wordVectors0[:nWords,:] + wordVectors0[nWords:,:])\n",
-"visualizeWords = [\"the\", \"a\", \"an\", \",\", \".\", \"?\", \"!\", \"``\", \"''\", \"--\", \"good\", \"great\", \"cool\", \"brilliant\", \"wonderful\", \"well\", \"amazing\", \"worth\", \"sweet\", \"enjoyable\", \"boring\", \"bad\", \"waste\", \"dumb\", \"annoying\"]\n",
-"visualizeIdx = [tokens[word] for word in visualizeWords]\n",
-"visualizeVecs = wordVectors[visualizeIdx, :]\n",
-"temp = (visualizeVecs - np.mean(visualizeVecs, axis=0))\n",
-"covariance = 1.0 / len(visualizeIdx) * temp.T.dot(temp)\n",
-"U,S,V = np.linalg.svd(covariance)\n",
-"coord = temp.dot(U[:,0:2]) \n",
-"\n",
-"for i in xrange(len(visualizeWords)):\n",
-"    plt.text(coord[i,0], coord[i,1], visualizeWords[i], bbox=dict(facecolor='green', alpha=0.1))\n",
-"    \n",
-"plt.xlim((np.min(coord[:,0]), np.max(coord[:,0])))\n",
-"plt.ylim((np.min(coord[:,1]), np.max(coord[:,1])))"
-]
-},
-'''
 
 if __name__ == '__main__':
   main()
