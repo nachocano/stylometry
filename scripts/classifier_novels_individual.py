@@ -39,28 +39,6 @@ def build_data(x, y, cxt, test_fold):
         cxt_test[gen] = np.array(cxt_test_list[gen]).astype(int)
     return x_train, y_train, cxt_train, x_test, y_test, cxt_test
 
-def update_fold_results(y_test, predictions):
-    values = defaultdict(int)
-    for i in xrange(y_test.shape[0]):
-        if predictions[i] == y_test[i]:
-            if predictions[i] == 1:
-                values['TP'] += 1
-            else: 
-                values['TN'] += 1
-        else:
-            if predictions[i] == 1 and y_test[i] == 0:
-                values['FP'] += 1
-            else:
-                values['FN'] += 1
-
-    total_count = values['TP'] + values['TN'] + values['FP'] + values['FN']
-    assert total_count == y_test.shape[0], "invalid total count %d, should be %d" % (total_count, y_test.shape[0])
-    prec = utils.get_precision(values['TP'], values['FP'])
-    rec = utils.get_recall(values['TP'], values['FN'])
-    f1 = utils.get_f1(prec, rec)
-    acc = utils.get_accuracy(values['TP'], values['TN'], values['FP'], values['FN'])
-    return (prec, rec, f1, acc)
-
 
 ''' creates individual models for the different genres '''
 def main():
@@ -98,7 +76,7 @@ def main():
                     print 'updating best results for fold %s, for gen %s' % (fold, gen)
                     best_params = params
                     best_accuracy = acc
-	            results[gen][int(fold)] = update_fold_results(y_test[gen], predictions)
+	            results[gen][int(fold)] = utils.update_fold_results(y_test[gen], predictions)
 
     print 'computing averages results'
     avg_results = defaultdict(lambda: defaultdict(int))

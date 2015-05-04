@@ -113,3 +113,25 @@ def to_multitask(x, cxt):
         rest[i][start:end] = x[i]
     new_x = np.hstack((x, rest))
     return new_x
+
+def update_fold_results(y_test, predictions):
+    values = defaultdict(int)
+    for i in xrange(y_test.shape[0]):
+        if predictions[i] == y_test[i]:
+            if predictions[i] == 1:
+                values['TP'] += 1
+            else: 
+                values['TN'] += 1
+        else:
+            if predictions[i] == 1 and y_test[i] == 0:
+                values['FP'] += 1
+            else:
+                values['FN'] += 1
+
+    total_count = values['TP'] + values['TN'] + values['FP'] + values['FN']
+    assert total_count == y_test.shape[0], "invalid total count %d, should be %d" % (total_count, y_test.shape[0])
+    prec = get_precision(values['TP'], values['FP'])
+    rec = get_recall(values['TP'], values['FN'])
+    f1 = get_f1(prec, rec)
+    acc = get_accuracy(values['TP'], values['TN'], values['FP'], values['FN'])
+    return (prec, rec, f1, acc)    
