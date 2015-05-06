@@ -10,6 +10,7 @@ from collections import defaultdict
 from sklearn.metrics import accuracy_score
 import os
 from itertools import groupby
+import random
 
 genres_dict = {1 : 'Adventure_Stories', 2: 'Fiction' , 3: 'Historical_Fiction', 4: 'Love_Stories', 5: 'Mystery', 6: 'Poetry', 7: 'Science_Fiction', 8: 'Short_Stories'}
 genres = {'Adventure_Stories' : 1, 'Fiction' : 2, 'Historical_Fiction': 3, 'Love_Stories': 4, 'Mystery' : 5, 'Poetry' : 6, 'Science_Fiction' : 7, 'Short_Stories' : 8}
@@ -232,4 +233,15 @@ def read_syn_novels(folder):
         return idx, dictionary[parsed]
     
     return read_novels(folder, get_sentence)
+
+def shuffle(lol, seed):
+    '''
+    lol :: list of list as input
+    seed :: seed the shuffling
+
+    shuffle inplace each list in the same order
+    '''
+    for l in lol:
+        random.seed(seed)
+        random.shuffle(l)    
 
