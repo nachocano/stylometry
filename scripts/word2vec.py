@@ -29,15 +29,15 @@ def main():
   words2idx  = dict((k,v) for v,k in idx2word.iteritems())
 
   new_syn_data = []
-  for ids, novel in syn_data[0]:
+  for val in syn_data[0]:
     new_novel = []
-    for sentence in novel:
+    for sentence in val[1]:
       new_novel.append(sentence + orig_size)
-    new_syn_data.append((ids, new_novel))
+    new_syn_data.append((val[0], new_novel))
 
   # assert
-  for d, s in zip(data[0], new_syn_data[0]):
-      assert d[0] == s[0]
+  for d, s in zip(data[0], new_syn_data):
+    assert d[0] == s[0]
 
 if __name__ == '__main__':
   main()
