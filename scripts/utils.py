@@ -161,6 +161,8 @@ def contextwin(l, win):
 def read_data(raw, parsed, corpus):
     data = read_raw_novels(raw) if corpus == 'novels' else read_raw_nyt(raw)
     syn_data = read_syn_novels(parsed) if corpus == 'novels' else read_syn_nyt(parsed)
+    for d, s in zip(data[0], syn_data[0]):
+        assert d[0] == s[0]
     return data, syn_data
 
 def read_raw_nyt(folder):
@@ -198,8 +200,9 @@ def read_novels(folder, get_sentence):
                         for line in open(d).read().splitlines():
                             word_idx, sentence = get_sentence(line, words2idx, word_idx)
                             sentences.append(sentence)
-                        novels.append(sentences)
+                        novels.append(((did, gid, fid, label), sentences))
     assert len(novels) == 800
+    return novels, words2idx 
 
 # can use this one if I use NP VP ., instead of the SYN version
 def get_sentence(line, dictionary, idx):
@@ -215,7 +218,7 @@ def get_sentence(line, dictionary, idx):
     return idx, np.asarray(sentence).astype('int32')
 
 def read_raw_novels(folder):
-    read_novels(folder, get_sentence)
+    return read_novels(folder, get_sentence)
 
 def read_syn_novels(folder):
     # use this one when changing the parsed to SYN_i, instead of the whole parse
@@ -228,5 +231,5 @@ def read_syn_novels(folder):
             idx += 1
         return idx, dictionary[parsed]
     
-    read_novels(folder, get_sentence)
+    return read_novels(folder, get_sentence)
 
