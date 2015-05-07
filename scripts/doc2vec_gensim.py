@@ -1,3 +1,4 @@
+from __future__ import division
 import argparse
 import time
 import numpy as np
@@ -35,16 +36,16 @@ def main():
         start = time.time()
         logging.info('training epoch %s with alpha %s' % (epoch, model.alpha))
         model.train(train_sentences)
-        model.alpha -= 0.002
+        model.alpha = start_alpha * (1 / (epoch + 2))
         if model.alpha < start_alpha * 0.0001:
             model.alpha = start_alpha * 0.0001
         model.min_alpha = model.alpha
         elapsed = time.time() - start
         logging.info('epoch %s training took %s' % (epoch, elapsed))
 
-    model.save(args.output_file)
+    #model.save(args.output_file + '.txt')
     # save it in the other format as well
-    model.save_word2vec_format(args.output_file + '.w2v.txt', binary=False)
+    model.save_word2vec_format(args.output_file, binary=False)
 
     total_time = time.time() - begin
     logging.info('overall run took %s' % total_time)
@@ -74,7 +75,7 @@ def main():
     #model.train(test_sentences)
 
 def build_sentences(input_file):
-    print 'building sentences'
+    logging.info('building sentences')
     build_start = time.time()
     sentences = []
     for line in open(input_file).read().splitlines():
