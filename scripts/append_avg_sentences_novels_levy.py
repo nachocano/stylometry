@@ -67,7 +67,7 @@ def main():
                 parsed = l_parsed.strip()
                 # first syns
                 if parsed not in pcfg2idx:
-                  pcfg2idx[parsed] = pcfg_index
+                  pcfg2idx[parsed] = 'SYN%d' % pcfg_index
                   pcfg_index +=1
                 syns.append(pcfg2idx[parsed])
 

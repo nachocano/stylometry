@@ -40,23 +40,33 @@ def main():
 
   print 'book length: %s' % len(books)
 
+  emb = {}
+  tick = time.time()
   print 'loading word2vec'
-  model = word2vec.Word2Vec.load_word2vec_format(args.embeddings_file, binary=True)
-  print 'loaded word2vec'
+
+  def read_lines(f):
+    for ii,line in enumerate(f):
+      yield line
+
+  for line in read_lines(open(args.embeddings_file, 'r')):
+    if line.startswith('SENT') or line.startswith('SYN'):
+      l = line.split()
+      emb[l[0]] = np.array(l[1:]).astype(np.float32)
+  elapsed = time.time() - tick
+  print 'loaded word2vec in %s' % elapsed
 
   of = open(args.output_file, 'w')
   for (did, gid, fid, label) in books:
-    print (did, gid, fid, label)
     book_embedding = []
     for sentence_nr, syn in books[(did, gid, fid, label)]:
       sentence = "SENT_%s_%s_%s_%s_%s" % (did, gid, fid, label, sentence_nr)
       syntax = "SYN%s" % syn
-      sent_v = matutils.unitvec(model.syn0[model.vocab[sentence].index])
-      syn_v = matutils.unitvec(model.syn0[model.vocab[syntax].index])
+      sent_v = matutils.unitvec(emb[sentence])
+      syn_v = matutils.unitvec(emb[syntax])
       b = np.hstack((sent_v, syn_v))
       book_embedding.append(b)
-    avg_book_embedding = matutils.unitvec(book_embedding.mean(axis=0)).astype(np.float32)
-    embeddings_as_str = ' '.join(str(e) for e in avg_embeddings)
+    avg_book_embedding = matutils.unitvec(np.array(book_embedding).mean(axis=0)).astype(np.float32)
+    embeddings_as_str = ' '.join(str(e) for e in avg_book_embedding)
     of.write('%s %s %s %s %s\n' % (did, gid, fid, label, embeddings_as_str))
   of.close()
 
