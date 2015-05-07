@@ -9,11 +9,16 @@ from copy import deepcopy
 from gensim import matutils
 
 def entries(filename):
+  def read_lines(f):
+    for ii,line in enumerate(f):
+      yield line
+
   dictionary = {}
-  for line in open(filename).read().splitlines():
-    splitted = line.split()
-    key = splitted[0]
-    dictionary[key] = splitted[1:]
+  for line in read_lines(open(filename, 'r')):
+    if line.startswith('SYN')
+      splitted = line.split()
+      key = splitted[0]
+      dictionary[key] = splitted[1:]
   return dictionary
 
 def main():
@@ -82,10 +87,10 @@ def main():
               if str(syn) not in embs:
                 print 'key %s not found' % syn
                 continue
-              e = deepcopy(embs[str(syn)])
-              if use_context:
-                e.extend(cxts['SYN%d' % syn])
-              result[i] = np.array(e)
+              #e = deepcopy(embs[str(syn)])
+              #if use_context:
+              #  e.extend(cxts['SYN%d' % syn])
+              result[i] = np.array(embs[str(syn)])
             avg_embeddings = matutils.unitvec(result.mean(axis=0)).astype(np.float32)
             embeddings_as_str = ' '.join(str(e) for e in avg_embeddings)
             print '%s %s %s %s %s' % (did, gid, fid, label, embeddings_as_str)
