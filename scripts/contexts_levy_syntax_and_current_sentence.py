@@ -26,11 +26,13 @@ def main():
   word_counts = Counter()
   syn_counts = Counter()
   cxt_counts = Counter()
-  pcfg2idx = {}
   word2idx = {}
   idx2word = {}
-  pcfg_index = 0
+  pcfg2syn = {}
+  syn2idx = {}
+  idx2syn = {}
   word_index = 0
+  syn_index = 0
   for genre in os.listdir(args.raw_input_folder):
     genre_folder_raw = os.path.join(args.raw_input_folder, genre)
     genre_folder_parsed = os.path.join(args.parsed_input_folder, genre)
@@ -56,19 +58,27 @@ def main():
           if os.path.isfile(d_raw) and not d_raw.startswith('.') and os.path.isfile(d_parsed) and not d_parsed.startswith('.'):
             did = document[:document.find('.')] # removing extension
             syns = []
-            words = []
+            sentences = []
             with open(d_raw) as f1, open(d_parsed) as f2:
               for l_raw, l_parsed in zip(f1, f2):
                 parsed = l_parsed.strip()
                 # first syns
-                if parsed not in pcfg2idx:
-                  pcfg2idx[parsed] = pcfg_index
-                  om.write('SYN%d\t%s\n' % (pcfg2idx[parsed], parsed))
-                  pcfg_index +=1
-                syn_counts[pcfg2idx[parsed]] += 1
-                syns.append(pcfg2idx[parsed])
+                if parsed not in pcfg2syn:
+                  pcfg2syn[parsed] = 'SYN%d' % syn_index
+                  syn2idx[pcfg2syn[parsed]] = syn_index
+                  idx2syn[syn_index] = pcfg2syn[parsed]
+                  syn_index += 1
+                  om.write('%s\t%s\n' % (pcfg2syn[parsed], parsed))
+                syn_counts[pcfg2syn[parsed]] += 1
+                syns.append(syn2idx[pcfg2syn[parsed]])
 
                 # then words
+                l_raw = l_raw.lower()
+                ws = l_raw.rstrip().split()
+                sentences.append((pcfg2syn[parsed], ws))
+                
+                '''
+                sentence = []
                 ws = l_raw.rstrip().split()
                 for w in ws:
                   w = w.lower()
@@ -77,21 +87,35 @@ def main():
                     word2idx[w] = word_index
                     idx2word[word_index] = w
                     word_index += 1
-                  words.append(word2idx[w])
+                  sentence.append(word2idx[w])
+                sentences.append(sentence)
+                '''
             
             # first syns
             syns_arrays = utils.contextwin(syns, args.context_window)
             for array in syns_arrays:
               mid = int(len(array)/2)
-              w = 'SYN%d' % array[mid]
+              w = idx2syn[array[mid]]
               for left in array[:mid]:
-                of.write('%s %s\n' % (w, 'SYN%d' % left))
-                cxt_counts['SYN%d' % left] += 1
+                if left == -1:
+                  continue
+                of.write('%s %s\n' % (w, idx2syn[left]))
+                cxt_counts[idx2syn[left]] += 1
               for right in array[mid+1:]:
-                of.write('%s %s\n' % (w, 'SYN%d' % right))
-                cxt_counts['SYN%d' % right] += 1
+                if right == -1:
+                  continue
+                of.write('%s %s\n' % (w, idx2syn[right]))
+                cxt_counts[idx2syn[right]] += 1
 
-            # then words
+            # then sentences, words are only contexts of SYN
+            # maybe should do some downsampling here, based on word frequencies or something
+            # for later
+            for s, sent in sentences:
+              for w in sent:
+                of.write('%s %s\n' % (s, w))
+                cxt_counts[w] += 1
+            
+            '''
             idx2word[-1] = 'padding'
             word2idx['padding'] = -1
             words_arrays = utils.contextwin(words, args.context_window)
@@ -104,22 +128,22 @@ def main():
               for right in array[mid+1:]:
                 of.write('%s %s\n' % (w, idx2word[right]))
                 cxt_counts[idx2word[right]] += 1
+            '''
 
+  of.close()  
   om.close()
   # save vocabulary counts (word count)
   ov = open(args.output_vocabulary, 'w')
-  for word in word_counts:
-    ov.write('%s %d\n' % (word, word_counts[word]))
+  # save word counts (just syns are words)
   for syn in syn_counts:
     ov.write('%s %d\n' % (syn, syn_counts[syn]))
   ov.close()  
-
   # save contexts counts
   oc = open(args.output_contexts, 'w')
   for cxt in cxt_counts:
     oc.write('%s %d\n' % (cxt, cxt_counts[cxt]))
   oc.close()
-  of.close()
+
 
 
 

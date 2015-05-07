@@ -8,8 +8,13 @@ import numpy as np
 import time
 from collections import defaultdict
 from sklearn.metrics import accuracy_score
+import os
+from itertools import groupby
+import random
 
 genres_dict = {1 : 'Adventure_Stories', 2: 'Fiction' , 3: 'Historical_Fiction', 4: 'Love_Stories', 5: 'Mystery', 6: 'Poetry', 7: 'Science_Fiction', 8: 'Short_Stories'}
+genres = {'Adventure_Stories' : 1, 'Fiction' : 2, 'Historical_Fiction': 3, 'Love_Stories': 4, 'Mystery' : 5, 'Poetry' : 6, 'Science_Fiction' : 7, 'Short_Stories' : 8}
+novel_labels = {'failure' : 0, 'success' : 1}
 
 def save_model(filename, model):
   if filename:
@@ -152,3 +157,91 @@ def contextwin(l, win):
 
     assert len(out) == len(l)
     return out
+
+
+def read_data(raw, parsed, corpus):
+    data = read_raw_novels(raw) if corpus == 'novels' else read_raw_nyt(raw)
+    syn_data = read_syn_novels(parsed) if corpus == 'novels' else read_syn_nyt(parsed)
+    for d, s in zip(data[0], syn_data[0]):
+        assert d[0] == s[0]
+    return data, syn_data
+
+def read_raw_nyt(folder):
+    print 'TODO'
+    exit()
+
+def read_syn_nyt(folder):
+    print 'TODO'
+    exit()
+
+def read_novels(folder, get_sentence):
+    words2idx = {}
+    word_idx = 0
+    novels = []
+    for genre in os.listdir(folder):
+        genre_folder = os.path.join(folder, genre)
+        if not os.path.isdir(genre_folder):
+            continue
+        gid = genres[genre]
+        for fold in os.listdir(genre_folder):
+            fold_folder = os.path.join(genre_folder, fold)
+            if not os.path.isdir(fold_folder):
+                continue
+            fid = fold[-1]
+            for fail_success in os.listdir(fold_folder):
+                fail_success_folder = os.path.join(fold_folder, fail_success)
+                if not os.path.isdir(fail_success_folder):
+                    continue
+                label = novel_labels[fail_success[:-1]]
+                for document in os.listdir(fail_success_folder):
+                    d = os.path.join(fail_success_folder, document)
+                    if os.path.isfile(d) and not d.startswith('.'):
+                        did = document[:document.find('.')] # removing extension
+                        sentences = []
+                        for line in open(d).read().splitlines():
+                            word_idx, sentence = get_sentence(line, words2idx, word_idx)
+                            sentences.append(sentence)
+                        novels.append(((did, gid, fid, label), sentences))
+    assert len(novels) == 800
+    return novels, words2idx 
+
+# can use this one if I use NP VP ., instead of the SYN version
+def get_sentence(line, dictionary, idx):
+    words = line.split()
+    sentence = []
+    for w in words:
+        # convert to lowercase
+        w = w.lower()
+        if w not in dictionary:
+            dictionary[w] = idx
+            idx += 1
+        sentence.append(dictionary[w])
+    return idx, np.asarray(sentence).astype('int32')
+
+def read_raw_novels(folder):
+    return read_novels(folder, get_sentence)
+
+def read_syn_novels(folder):
+    # use this one when changing the parsed to SYN_i, instead of the whole parse
+    def get_sentence(line, dictionary, idx):
+        parsed = line.strip()
+        if parsed not in dictionary:
+            # right now we are using the same indexes for syns and regular words. 
+            # should probably change it
+            dictionary[parsed] = idx
+            idx += 1
+        return idx, dictionary[parsed]
+    
+    return read_novels(folder, get_sentence)
+
+def shuffle(lol, seed):
+    '''
+    lol :: list of list as input
+    seed :: seed the shuffling
+
+    shuffle inplace each list in the same order
+    '''
+    for l in lol:
+        random.seed(seed)
+        random.shuffle(l)    
+
