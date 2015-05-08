@@ -12,11 +12,12 @@ def main():
     parser.add_argument('-d', '--dimension', required=False, type=int, default=100)
     parser.add_argument('-w', '--window', required=False, type=int, default=10)
     parser.add_argument('-mc', '--min_count', required=False, type=int, default=30)
-    parser.add_argument('-s', '--sample', required=True, type=float, default=1e-3)
+    parser.add_argument('-s', '--sample', required=False, type=float, default=1e-3)
     parser.add_argument('-dm', '--dist_memory', required=False, type=int, default=0)
     parser.add_argument('-hs', '--hier_sampling', required=False, type=int, default=0)
     parser.add_argument('-n', '--negative', required=False, type=int, default=5)
-    parser.add_argument('-it', '--iterations', required=True, type=int)
+    parser.add_argument('-it', '--iterations', required=False, type=int, default=5)
+    parser.add_argument('-w', '--workers', required=False, type=int, default=8)
 
     args = parser.parse_args()
 
@@ -26,7 +27,7 @@ def main():
     
     start_alpha = 0.025
     model = models.Doc2Vec(size=args.dimension, alpha=start_alpha, window=args.window, min_count=args.min_count, sample=args.sample, 
-        seed=1, workers=8, min_alpha=start_alpha, dm=args.dist_memory, hs=args.hier_sampling, negative=args.negative, dm_mean=1, train_words=True, train_lbls=True)
+        seed=37, workers=args.workers, min_alpha=start_alpha, dm=args.dist_memory, hs=args.hier_sampling, negative=args.negative, dm_mean=1, train_words=True, train_lbls=True)
     logging.info('building vocab')
     start = time.time()
     model.build_vocab(train_sentences)

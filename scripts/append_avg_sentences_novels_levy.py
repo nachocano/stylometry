@@ -15,7 +15,7 @@ def entries(filename):
 
   dictionary = {}
   for line in read_lines(open(filename, 'r')):
-    if line.startswith('SYN')
+    if line.startswith('SYN'):
       splitted = line.split()
       key = splitted[0]
       dictionary[key] = splitted[1:]
@@ -85,7 +85,7 @@ def main():
             result = np.zeros([len(syns), args.embeddings_dimension * p])
             for i, syn in enumerate(syns):
               if str(syn) not in embs:
-                print 'key %s not found' % syn
+                #print 'key %s not found' % syn
                 continue
               #e = deepcopy(embs[str(syn)])
               #if use_context:
