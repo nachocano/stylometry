@@ -34,14 +34,14 @@ def main():
 
     for epoch in xrange(args.iterations):
         start = time.time()
-        logging.info('training epoch %s with alpha %s' % (epoch, model.alpha))
+        logging.info('********* training epoch %s with alpha %s ***' % (epoch, model.alpha))
         model.train(train_sentences)
         model.alpha = start_alpha * (1 / (epoch + 2))
         if model.alpha < start_alpha * 0.0001:
             model.alpha = start_alpha * 0.0001
         model.min_alpha = model.alpha
         elapsed = time.time() - start
-        logging.info('epoch %s training took %s' % (epoch, elapsed))
+        logging.info('********* epoch %s training took %s **********' % (epoch, elapsed))
 
     start = time.time()
     logging.info('saving model')
