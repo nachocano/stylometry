@@ -61,8 +61,16 @@ def main():
     for sentence_nr, syn in books[(did, gid, fid, label)]:
       sentence = "SENT_%s_%s_%s_%s_%s" % (did, gid, fid, label, sentence_nr)
       syntax = "SYN%s" % syn
-      sent_v = matutils.unitvec(emb[sentence])
-      syn_v = matutils.unitvec(emb[syntax])
+      sent_v = None
+      syn_v = None
+      if sentence in emb:
+        sent_v = matutils.unitvec(emb[sentence])
+      else:
+        sent_v = np.zeros(args.embeddings_dimension)
+      if syntax in emb:
+        syn_v = matutils.unitvec(emb[syntax])
+      else:
+        syn_v = np.zeros(args.embeddings_dimension)        
       b = np.hstack((sent_v, syn_v))
       book_embedding.append(b)
     avg_book_embedding = matutils.unitvec(np.array(book_embedding).mean(axis=0)).astype(np.float32)
