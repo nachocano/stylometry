@@ -17,7 +17,7 @@ def main():
     parser.add_argument('-hs', '--hier_sampling', required=False, type=int, default=0)
     parser.add_argument('-n', '--negative', required=False, type=int, default=5)
     parser.add_argument('-it', '--iterations', required=False, type=int, default=5)
-    parser.add_argument('-w', '--workers', required=False, type=int, default=8)
+    parser.add_argument('-t', '--workers', required=False, type=int, default=8)
 
     args = parser.parse_args()
 
@@ -60,6 +60,8 @@ def build_sentences(input_file):
     for line in open(input_file).read().splitlines():
         line = utils.to_unicode(line)
         line_splitted = line.split(' ')
+        if len(line_splitted) == 0:
+          continue
         words = line_splitted[2:]
         # two labels (SENT and SYN)
         labels = [line_splitted[0], line_splitted[1]]
