@@ -58,10 +58,10 @@ def build_sentences(input_file):
     build_start = time.time()
     sentences = []
     for line in open(input_file).read().splitlines():
+        if line == '':
+            continue
         line = utils.to_unicode(line)
         line_splitted = line.split(' ')
-        if len(line_splitted) == 0:
-          continue
         words = line_splitted[2:]
         # two labels (SENT and SYN)
         labels = [line_splitted[0], line_splitted[1]]
