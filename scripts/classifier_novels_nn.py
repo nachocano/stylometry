@@ -47,12 +47,11 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('-i', '--input', required=True)
     parser.add_argument('-o', '--output', required=True)
-    parser.add_argument('-c', '--classifier', required=True)
     args = parser.parse_args()
 
     begin = time.time()
 
-    sf = gl.SFrame.read_csv(args.input, delimiter=' ', header=False)
+    sf = gl.SFrame.read_csv(args.input, delimiter=' ', header=False, verbose=False)
     sf.rename({'X1': 'id', 'X2':'genre', 'X3' : 'fold', 'X4' : 'label'})
 
     #parameters = utils.build_parameters(args.classifier)
@@ -63,11 +62,12 @@ def main():
         print 'executing fold %d ----' % int(fold)
         train, cxt_train, test, cxt_test = build_data(sf, fold)
         net = gl.deeplearning.create(train, 'label', network_type='auto')
-        clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric=['accuracy'], max_iterations=40)
-        eval_ = clf.evaluate(test_data)
-        print eval_
-        print clf.summary()
-        exit()
+        net.params['batch_size'] = 1
+        net.params['metric'] = 'accuracy'
+        net.params['learning_rate_schedule'] = 'exponential_decay'
+        #net = gl.deeplearning.MultiLayerPerceptrons(2, [50, 2], activation='sigmoid')
+        net.verify()
+        clf = gl.neuralnet_classifier.create(train, target='label', network = net, max_iterations=40)
         predictions = clf.classify(test)
         p_results = update_fold_results(cxt_test['genre'], test['label'], predictions['class'])
         results[int(fold)] = {}
