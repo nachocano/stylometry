@@ -61,13 +61,18 @@ def main():
     for fold in folds:
         print 'executing fold %d ----' % int(fold)
         train, cxt_train, test, cxt_test = build_data(sf, fold)
-        net = gl.deeplearning.create(train, 'label', network_type='auto')
+        #net = gl.deeplearning.create(train, 'label', network_type='auto')
+        #net.params['batch_size'] = 300
+        #net.params['metric'] = 'accuracy'
+        #net.params['learning_rate_schedule'] = 'exponential_decay'
+        net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
         net.params['batch_size'] = 1
-        net.params['metric'] = 'accuracy'
-        net.params['learning_rate_schedule'] = 'exponential_decay'
-        #net = gl.deeplearning.MultiLayerPerceptrons(2, [50, 2], activation='sigmoid')
+        #net.params['metric'] = 'accuracy'
+        #net.params['learning_rate_schedule'] = 'exponential_decay'        
+        #net.params['learning_rate_schedule'] = 'polynomial_decay'
         net.verify()
-        clf = gl.neuralnet_classifier.create(train, target='label', network = net, max_iterations=40)
+        # {sigmoid, tanh, relu, softplus}
+        clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric = 'accuracy', max_iterations=500)
         predictions = clf.classify(test)
         p_results = update_fold_results(cxt_test['genre'], test['label'], predictions['class'])
         results[int(fold)] = {}
@@ -91,17 +96,15 @@ def main():
         avg_results[gen]['F'] /= len(folds)
         avg_results[gen]['A'] /= len(folds)
 
-
     print 'writing output file'
     out = open(args.output, "w")
     for gen in avg_results:
+        #print '%s,%s,%s,%s,%s\n' % (gen, avg_results[gen]['P'], avg_results[gen]['R'], avg_results[gen]['F'], avg_results[gen]['A'])
         out.write('%s,%s,%s,%s,%s\n' % (gen, avg_results[gen]['P'], avg_results[gen]['R'], avg_results[gen]['F'], avg_results[gen]['A']))
     out.close()
 
     elapsed_run = time.time() - begin
     print 'all run took %s' % elapsed_run
-
-
 
 if __name__ == '__main__':
   main()

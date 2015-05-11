@@ -66,10 +66,12 @@ def main():
       if sentence in emb:
         sent_v = matutils.unitvec(emb[sentence])
       else:
+        print '%s not in emb' % sentence
         sent_v = np.zeros(args.embeddings_dimension)
       if syntax in emb:
         syn_v = matutils.unitvec(emb[syntax])
       else:
+        print '%s not in emb' % syntax
         syn_v = np.zeros(args.embeddings_dimension)        
       b = np.hstack((sent_v, syn_v))
       book_embedding.append(b)
