@@ -65,11 +65,15 @@ def main():
         #net.params['batch_size'] = 300
         #net.params['metric'] = 'accuracy'
         #net.params['learning_rate_schedule'] = 'exponential_decay'
-        net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
-        net.params['batch_size'] = 1
+        #net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
+        #net.params['batch_size'] = 1
+        net = gl.deeplearning.ConvolutionNet(num_convolution_layers=1,
+                                               kernel_size=3, stride=2,
+                                               num_channels=10,
+                                               num_output_units=2,
+                                               pooling='max_pooling')
         #net.params['metric'] = 'accuracy'
-        #net.params['learning_rate_schedule'] = 'exponential_decay'        
-        #net.params['learning_rate_schedule'] = 'polynomial_decay'
+        print net.layers
         net.verify()
         # {sigmoid, tanh, relu, softplus}
         clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric = 'accuracy', max_iterations=500)
