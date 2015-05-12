@@ -97,12 +97,12 @@ def build_sentences(input_file, global_window):
     tick = time.time()
     logging.info('reading contexts')
     contexts = defaultdict(lambda : defaultdict(list))
+    left = len(data)
     for k,v in data.iteritems():
         syns = []
         for e in v:
             syns.append(e[1])
         syns_arrays = contextwin(syns, global_window)
-        print syns_arrays
         for array in syns_arrays:
             mid = int(len(array)/2)
             w = idx2syn[array[mid]]
@@ -114,6 +114,8 @@ def build_sentences(input_file, global_window):
                 if right == -1:
                     continue
                 contexts[k][w].append(idx2syn[right])
+        left -= 1
+        logging.info('contexts left %s' % left)
     elapsed = time.time() - tick
     logging.info('read contexts, took %s' % elapsed)
     logging.info('building sentences')
@@ -129,6 +131,8 @@ def build_sentences(input_file, global_window):
             syntax = models.doc2vec.Syntax(syn, syn_cxts)
             sentence = models.doc2vec.LabeledSyntaxSentence(elem[2], [label], [syntax])
             sentences.append(sentence)
+            count -= 1
+            logging.info('sentences left %s' % count)
     elapsed = time.time() - tick
     logging.info('sentences built, took %s' % elapsed)
     return sentences
