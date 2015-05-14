@@ -6,14 +6,61 @@ from collections import defaultdict
 import utils
 import graphlab as gl
 
+
+def build_data(x, y, cxt, test_fold):
+    x_train_list = []
+    y_train_list = []
+    cxt_train = []
+    x_test_list = []
+    y_test_list = []
+    cxt_test = []
+    for i in xrange(x.shape[0]):
+        current_fold = cxt[i,2]
+        if current_fold == test_fold:
+            cxt_test.append(cxt[i,2])
+            x_test_list.append(x[i] * 255)
+            y_test_list.append(y[i])            
+        else:
+            cxt_train.append(cxt[i,2])
+            x_train_list.append(x[i] * 255)
+            y_train_list.append(y[i])
+
+    new_x_train_list = []
+    new_x_test_list = []
+    for elem in x_train_list:
+        new_x_train_list.append([0 if x < 0 else x for x in elem])
+    for elem in x_test_list:
+        new_x_test_list.append([0 if x < 0 else x for x in elem])
+
+    x_train = gl.SArray(new_x_train_list) 
+    x_train = gl.SArray.pixel_array_to_image(x_train, 20, 20, 1, undefined_on_failure=False, allow_rounding=True)
+    y_train = gl.SArray(y_train_list)
+    cxt_train = gl.SArray(cxt_train)
+    x_test = gl.SArray(new_x_test_list)
+    x_test = gl.SArray.pixel_array_to_image(x_test, 20, 20, 1, undefined_on_failure=False, allow_rounding=True)
+    y_test = gl.SArray(y_test_list)
+    cxt_test = gl.SArray(cxt_test)
+
+    train = gl.SFrame(data=x_train, format='sarray')
+    train.add_column(y_train, name='label')
+    test = gl.SFrame(data=x_test, format='sarray')
+    test.add_column(y_test, name='label')
+    cxt_train_sf = gl.SFrame(data=cxt_train, format='sarray')
+    cxt_test_sf = gl.SFrame(data=cxt_test, format='sarray')
+    cxt_train_sf.rename({'X1': 'genre'})
+    cxt_test_sf.rename({'X1': 'genre'})
+    return train, cxt_train_sf, test, cxt_test_sf
+
+'''
 def build_data(sf, test_fold):
-    train = sf[sf['fold'] != test_fold]
-    train.remove_columns(['id', 'genre', 'fold'])
-    cxt_train = sf[sf['fold'] != test_fold].select_columns(['id', 'genre', 'fold'])
-    test = sf[sf['fold'] == test_fold]
-    test.remove_columns(['id', 'genre', 'fold'])
-    cxt_test = sf[sf['fold'] == test_fold].select_columns(['id', 'genre', 'fold'])
+    train_sf = sf[sf['fold'] != test_fold]
+    train_sf.remove_columns(['id', 'genre', 'fold'])
+    cxt_train_sf = sf[sf['fold'] != test_fold].select_columns(['id', 'genre', 'fold'])
+    test_sf = sf[sf['fold'] == test_fold]
+    test_sf.remove_columns(['id', 'genre', 'fold'])
+    cxt_test_sf = sf[sf['fold'] == test_fold].select_columns(['id', 'genre', 'fold'])
     return train, cxt_train, test, cxt_test
+'''
 
 def update_fold_results(cxt_test, y_test, predictions):
     values = defaultdict(lambda : defaultdict(int))
@@ -51,32 +98,40 @@ def main():
 
     begin = time.time()
 
-    sf = gl.SFrame.read_csv(args.input, delimiter=' ', header=False, verbose=False)
-    sf.rename({'X1': 'id', 'X2':'genre', 'X3' : 'fold', 'X4' : 'label'})
+    #sf = gl.SFrame.read_csv(args.input, delimiter=' ', header=False, verbose=False)
+    #sf.rename({'X1': 'id', 'X2':'genre', 'X3' : 'fold', 'X4' : 'label'})
 
-    #parameters = utils.build_parameters(args.classifier)
-    folds = np.unique(sf['fold'])
+    data = np.genfromtxt(args.input)
+    # doc id, gender id, fold id
+    cxt = data[:,:3]
+    y = data[:,3].astype(int)
+    x = data[:,4:]    
+
+    #folds = np.unique(sf['fold'])
+    folds = np.unique(cxt[:,2]).astype(int)
     # divide train and test based on fold
     results = {}
     for fold in folds:
         print 'executing fold %d ----' % int(fold)
-        train, cxt_train, test, cxt_test = build_data(sf, fold)
-        #net = gl.deeplearning.create(train, 'label', network_type='auto')
-        #net.params['batch_size'] = 300
-        #net.params['metric'] = 'accuracy'
-        #net.params['learning_rate_schedule'] = 'exponential_decay'
-        net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
-        net.params['batch_size'] = 1
-        #net = gl.deeplearning.ConvolutionNet(num_convolution_layers=1,
-        #                                       kernel_size=3, stride=2,
-        #                                       num_channels=10,
-        #                                       num_output_units=2,
-        #                                       pooling='max_pooling')
-        #net.params['metric'] = 'accuracy'
-        #print net.layers
+        train, cxt_train, test, cxt_test = build_data(x, y, cxt, fold)
+        #train, cxt_train, test, cxt_test = build_data(sf, fold)
+        net = gl.deeplearning.create(train, 'label', network_type='auto')
+        #net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
+        net.params['batch_size'] = 100
+        net = gl.deeplearning.ConvolutionNet(num_convolution_layers=1,
+                                               kernel_size=3, stride=2,
+                                               num_channels=1,
+                                               num_output_units=2,
+                                               pooling='max_pooling')
+        '''
+        net = gl.deeplearning.get_builtin_neuralnet('mnist')
+        net.params['metric'] = 'accuracy'
+        net.layers[6].num_hidden_units = 2
+        '''
+        print net.layers
         net.verify()
         # {sigmoid, tanh, relu, softplus}
-        clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric = 'accuracy', max_iterations=500)
+        clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric = 'accuracy', max_iterations=5000)
         predictions = clf.classify(test)
         p_results = update_fold_results(cxt_test['genre'], test['label'], predictions['class'])
         results[int(fold)] = {}
