@@ -65,15 +65,15 @@ def main():
         #net.params['batch_size'] = 300
         #net.params['metric'] = 'accuracy'
         #net.params['learning_rate_schedule'] = 'exponential_decay'
-        #net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
-        #net.params['batch_size'] = 1
-        net = gl.deeplearning.ConvolutionNet(num_convolution_layers=1,
-                                               kernel_size=3, stride=2,
-                                               num_channels=10,
-                                               num_output_units=2,
-                                               pooling='max_pooling')
+        net = gl.deeplearning.MultiLayerPerceptrons(1, [2], activation='sigmoid', init_random='random')
+        net.params['batch_size'] = 1
+        #net = gl.deeplearning.ConvolutionNet(num_convolution_layers=1,
+        #                                       kernel_size=3, stride=2,
+        #                                       num_channels=10,
+        #                                       num_output_units=2,
+        #                                       pooling='max_pooling')
         #net.params['metric'] = 'accuracy'
-        print net.layers
+        #print net.layers
         net.verify()
         # {sigmoid, tanh, relu, softplus}
         clf = gl.neuralnet_classifier.create(train, target='label', network = net, metric = 'accuracy', max_iterations=500)
@@ -82,6 +82,7 @@ def main():
         results[int(fold)] = {}
         for genre in p_results:
             results[int(fold)][genre] = p_results[genre]
+        #break
                
     print 'computing averages results'
     avg_results = defaultdict(lambda: defaultdict(int))
@@ -99,11 +100,10 @@ def main():
         avg_results[gen]['R'] /= len(folds)
         avg_results[gen]['F'] /= len(folds)
         avg_results[gen]['A'] /= len(folds)
-
     print 'writing output file'
     out = open(args.output, "w")
     for gen in avg_results:
-        #print '%s,%s,%s,%s,%s\n' % (gen, avg_results[gen]['P'], avg_results[gen]['R'], avg_results[gen]['F'], avg_results[gen]['A'])
+        print '%s,%s,%s,%s,%s\n' % (gen, avg_results[gen]['P'], avg_results[gen]['R'], avg_results[gen]['F'], avg_results[gen]['A'])
         out.write('%s,%s,%s,%s,%s\n' % (gen, avg_results[gen]['P'], avg_results[gen]['R'], avg_results[gen]['F'], avg_results[gen]['A']))
     out.close()
 
