@@ -15,7 +15,7 @@ import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Options;
 import org.apache.commons.lang3.Validate;
 
-public class LinearizationDriver {
+public class LinearizationDriverNovels {
 
 	public static void main(final String[] args) throws Exception {
 		final Options options = new Options();

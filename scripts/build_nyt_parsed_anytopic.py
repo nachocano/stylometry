@@ -12,8 +12,8 @@ import shutil
 
 def main():
   parser = argparse.ArgumentParser(description='TODO')
-  parser.add_argument('-ir', '--input_raw_folder', required=True)
-  parser.add_argument('-ip', '--input_parsed_folder', required=True)
+  parser.add_argument('-ir', '--input_raw_folder', required=True) # already in folds
+  parser.add_argument('-ip', '--input_parsed_folder', required=True) # not in folds
   parser.add_argument('-op', '--output_parsed_folder', required=True)
 
   args = parser.parse_args()
