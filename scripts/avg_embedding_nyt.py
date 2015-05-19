@@ -35,12 +35,19 @@ def main():
 
   print 'nyt length: %s' % len(nyt)
 
+  def read_lines(f):
+    for ii,line in enumerate(f):
+      yield line
+
   p1 = re.compile(ur'^SENT-(\d{4}_\d{2}_\d{2}_\d+)-(\d)-(\d+)$')
   i = 0
   new_nyt = {}
   new_nyt_next_idx = {}
   new_nyt_fold = {}
-  for line in open(args.embeddings_file).read().splitlines():
+  c = 0
+  for line in read_lines(open(args.embeddings_file, 'r')):
+    print 'processing %d' % c
+    c += 1
     if i == 0:
       i = 1
       continue

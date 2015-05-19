@@ -34,11 +34,18 @@ def main():
 
   print 'nyt length: %s' % len(nyt)
 
+  def read_lines(f):
+    for ii,line in enumerate(f):
+      yield line
+
   p1 = re.compile(ur'^SENT-(\d{4}_\d{2}_\d{2}_\d+)-(\d)-(\d+)$')
   i = 0
   new_nyt = {}
   new_nyt_next_idx = {}
-  for line in open(args.embeddings_file).read().splitlines():
+  c = 0
+  for line in read_lines(open(args.embeddings_file, 'r')):
+    print 'processing %d' % c
+    c += 1
     if i == 0:
       i = 1
       continue
@@ -64,7 +71,7 @@ def main():
     did = elem[0]
     year, month, day, identifier = did.split("_")
     label = elem[1]
-    of.write('%s %d %d %s %s %s %s\n' % (year, int(month), int(day), identifier, label, embeddings_as_str))
+    of.write('%s %d %d %s %s %s\n' % (year, int(month), int(day), identifier, label, embeddings_as_str))
   of.close()
 
 if __name__ == '__main__':
