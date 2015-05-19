@@ -62,13 +62,6 @@ def main():
     for fold in folds:
         print 'executing fold %d ----' % int(fold)
         x_train, y_train, cxt_train, x_test, y_test, cxt_test = build_data(x, y, cxt, fold)
-        #print x_train.shape
-        #print y_train.shape
-        #print x_valid.shape
-        #print y_valid.shape
-        #print x_test.shape
-        #print y_test.shape
-        #exit()
         best_accuracies = defaultdict(int)
         clf_best = None
         # tunning model on validation data per fold
