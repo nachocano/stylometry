@@ -64,70 +64,60 @@ public class LinearizationDriverNYT {
 			outputF.mkdir();
 		}
 
-		for (final File foldFolder : input1F.listFiles()) {
-			if (foldFolder.isFile()) {
+		for (final File verygoodTypicalGreatFolder : input1F.listFiles()) {
+			if (verygoodTypicalGreatFolder.isFile()) {
 				continue;
 			}
-			System.out.println(" fold folder: " + foldFolder.getName());
-			final File foldInput2F = new File(input2F, foldFolder.getName());
-			final File foldOutputF = new File(outputF, foldFolder.getName());
-			foldOutputF.mkdir();
-			for (final File verygoodTypicalFolder : foldFolder.listFiles()) {
-				if (verygoodTypicalFolder.isFile()) {
+			System.out.println("  verygood typical great folder: "
+					+ verygoodTypicalGreatFolder.getName());
+			final File verygoodTypicalInput2F = new File(input2Folder,
+					verygoodTypicalGreatFolder.getName());
+			final File verygoodTypicalOutputF = new File(outputFolder,
+					verygoodTypicalGreatFolder.getName());
+			verygoodTypicalOutputF.mkdir();
+			for (final File document : verygoodTypicalGreatFolder.listFiles()) {
+				if (document.isDirectory()
+						|| document.getName().startsWith(".")) {
 					continue;
 				}
-				System.out.println("  verygood typical folder: "
-						+ verygoodTypicalFolder.getName());
-				final File verygoodTypicalInput2F = new File(foldInput2F,
-						verygoodTypicalFolder.getName());
-				final File verygoodTypicalOutputF = new File(foldOutputF,
-						verygoodTypicalFolder.getName());
-				verygoodTypicalOutputF.mkdir();
-				for (final File document : verygoodTypicalFolder.listFiles()) {
-					if (document.isDirectory()
-							|| document.getName().startsWith(".")) {
-						continue;
+				System.out.println("   document: " + document.getName());
+				final File parsedDoc = new File(verygoodTypicalInput2F,
+						document.getName() + ".pcfg");
+				final File linearizedDoc = new File(verygoodTypicalOutputF,
+						document.getName() + ".lpcfg");
+				PrintWriter pw = null;
+				BufferedReader readerRaw = null;
+				BufferedReader readerParsed = null;
+				try {
+					pw = new PrintWriter(new OutputStreamWriter(
+							new FileOutputStream(linearizedDoc), "utf-8"));
+					readerRaw = new BufferedReader(new InputStreamReader(
+							new FileInputStream(document), "utf-8"));
+					readerParsed = new BufferedReader(new InputStreamReader(
+							new FileInputStream(parsedDoc), "utf-8"));
+					String rawSentence, parsedSentence = null;
+					while ((rawSentence = readerRaw.readLine()) != null
+							&& (parsedSentence = readerParsed.readLine()) != null) {
+						final String linearized = linearizer.linearize(
+								rawSentence, parsedSentence);
+						pw.println(linearized);
 					}
-					System.out.println("   document: " + document.getName());
-					final File parsedDoc = new File(verygoodTypicalInput2F,
-							document.getName() + ".pcfg");
-					final File linearizedDoc = new File(verygoodTypicalOutputF,
-							document.getName() + ".lpcfg");
-					PrintWriter pw = null;
-					BufferedReader readerRaw = null;
-					BufferedReader readerParsed = null;
-					try {
-						pw = new PrintWriter(new OutputStreamWriter(
-								new FileOutputStream(linearizedDoc), "utf-8"));
-						readerRaw = new BufferedReader(new InputStreamReader(
-								new FileInputStream(document), "utf-8"));
-						readerParsed = new BufferedReader(
-								new InputStreamReader(new FileInputStream(
-										parsedDoc), "utf-8"));
-						String rawSentence, parsedSentence = null;
-						while ((rawSentence = readerRaw.readLine()) != null
-								&& (parsedSentence = readerParsed.readLine()) != null) {
-							final String linearized = linearizer.linearize(
-									rawSentence, parsedSentence);
-							pw.println(linearized);
-						}
 
-					} catch (final Exception exc) {
-						System.out.println(String.format("exception: %s",
-								exc.getMessage()));
-						return;
-					} finally {
-						if (readerRaw != null) {
-							readerRaw.close();
-						}
-						if (readerParsed != null) {
-							readerParsed.close();
-						}
-						if (pw != null) {
-							pw.close();
-						}
-
+				} catch (final Exception exc) {
+					System.out.println(String.format("exception: %s",
+							exc.getMessage()));
+					return;
+				} finally {
+					if (readerRaw != null) {
+						readerRaw.close();
 					}
+					if (readerParsed != null) {
+						readerParsed.close();
+					}
+					if (pw != null) {
+						pw.close();
+					}
+
 				}
 			}
 		}

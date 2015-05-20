@@ -22,11 +22,17 @@ public class DepthLinearizer implements Linearizer {
 	public String linearize(final String rawInput, final String parsedInput) {
 		String result = "";
 		int tempDepth = depth;
+		// remove root from parsed input
+		String parsed = parsedInput;
+		if (parsedInput.startsWith("(ROOT ")) {
+			parsed = parsedInput.replaceFirst("\\(ROOT ", "");
+			parsed = parsed.substring(0, parsed.length() - 1);
+		}
 		while (tempDepth >= 2) {
 			final StringBuilder sb = new StringBuilder();
 			int count = 0;
 			boolean possibleMark = false;
-			final char[] array = parsedInput.toCharArray();
+			final char[] array = parsed.toCharArray();
 			for (int i = 0; i < array.length; i++) {
 				if (array[i] == '(') {
 					count++;
