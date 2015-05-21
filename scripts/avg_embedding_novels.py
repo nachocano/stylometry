@@ -35,10 +35,17 @@ def main():
   i = 0
   new_books = {}
   new_books_next_idx = {}
-  for line in open(args.embeddings_file).read().splitlines():
+
+  def read_lines(f):
+    for ii,line in enumerate(f):
+      yield line
+  c = 0
+  for line in read_lines(open(args.embeddings_file, 'r')):
     if i == 0:
       i = 1
       continue
+    print 'processing %d' % c
+    c += 1      
     sentence = line.split()
     search_obj = re.search(p, sentence[0])
     if search_obj:
