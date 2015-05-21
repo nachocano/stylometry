@@ -139,17 +139,21 @@ def main():
             averages[gen]['F'] += avg[gen]['F']
             averages[gen]['A'] += avg[gen]['A']
 
+    avg_accuracy = 0
     for gen in averages:
         averages[gen]['P'] /= len(folds)
         averages[gen]['R'] /= len(folds)
         averages[gen]['F'] /= len(folds)
         averages[gen]['A'] /= len(folds)
+        avg_accuracy += averages[gen]['A']
+    avg_accuracy /= len(averages)
 
 
     print 'writing output file'
     out = open(args.output, "w")
     for gen in averages:
         out.write('%s,%s,%s,%s,%s\n' % (gen, averages[gen]['P'], averages[gen]['R'], averages[gen]['F'], averages[gen]['A']))
+    out.write('accuracy avg: %s\n' % avg_accuracy)
     out.close()
 
     elapsed_run = time.time() - begin
