@@ -4,6 +4,7 @@ import argparse
 import numpy as np
 from collections import defaultdict
 import utils
+from copy import deepcopy
 
 def build_data(x, y, cxt, test_fold):
     x_train_list = []
@@ -100,7 +101,7 @@ def main():
                     acc_genre = p_results[genre][3]
                     if acc_genre > best_accuracies[genre]:
                         best_accuracies[genre] = acc_genre
-                        best_clfs[genre] = clf
+                        best_clfs[genre] = deepcopy(clf)
             for genre in best_clfs:
                 clf = best_clfs[genre]
                 predictions = utils.test(clf, x_test)

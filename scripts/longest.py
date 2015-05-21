@@ -24,7 +24,7 @@ def main():
       greatest = len(line_splitted)
       best_line = line
   print 'biggest novel has %s sentences' % greatest
-  print 'line %s' % best_line
+  #print 'line %s' % best_line
 
 if __name__ == '__main__':
   main()
