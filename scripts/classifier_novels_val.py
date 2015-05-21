@@ -32,6 +32,20 @@ def build_data(x, y, cxt, test_fold):
     cxt_test = np.array(cxt_test).astype(int)
     return x_train, y_train, cxt_train, x_test, y_test, cxt_test    
 
+def rmse_per_genre(cxt_test, y_test, predictions):
+    values = defaultdict(lambda : defaultdict(list))
+    for i in xrange(y_test.shape[0]):
+        key = utils.genres_dict[int(cxt_test[i,1])]
+        values[key]['truth'].append(y_test[i])
+        values[key]['pred'].append(predictions[i])
+
+    result = {}
+    for gen in utils.genres_dict.itervalues():
+        assert len(values[gen]['truth']) == len(values[gen]['pred'])
+        rmse = utils.rmse(np.array(values[gen]['truth']), np.array(values[gen]['pred']))
+        result[gen] = rmse
+    return result
+
 def update_fold_results(cxt_test, y_test, predictions):
     values = defaultdict(lambda : defaultdict(int))
     for i in xrange(y_test.shape[0]):
@@ -91,24 +105,30 @@ def main():
             print ' executing val fold %d' % int(val_fold)
             results_per_val_fold[int(val_fold)] = {}
             x_train, y_train, cxt_train, x_val, y_val, cxt_val = build_data(x_train_all, y_train_all, cxt_train_all, val_fold)
-            best_accuracies = defaultdict(int)
+            best_rmses = {}
             best_clfs = {}
             for params in parameters:
                 print '  tunning with param %s' % params
                 clf = utils.create_classifier(args.classifier, params)
                 predictions = utils.execute(clf, x_train, y_train, x_val)
-                p_results = update_fold_results(cxt_val, y_val, predictions)
+                p_results = rmse_per_genre(cxt_val, y_val, predictions)
                 for genre in p_results:
-                    acc_genre = p_results[genre][3]
-                    if acc_genre > best_accuracies[genre]:
-                        print '   updating best result for genre %s for val fold %s, %s' % (genre, val_fold, acc_genre)
-                        best_accuracies[genre] = acc_genre
+                    rmse_genre = p_results[genre]
+                    if genre not in best_rmses:
+                        best_rmses[genre] = float('inf')
+                    if rmse_genre < best_rmses[genre]:
+                        print '   updating best result for genre %s for val fold %s, %s' % (genre, val_fold, rmse_genre)
+                        best_rmses[genre] = rmse_genre
                         best_clfs[genre] = deepcopy(clf)
+                    else:
+                        print '   not updating best result for genre %s for val fold %s, %s' % (genre, val_fold, rmse_genre)
             for genre in best_clfs:
                 clf = best_clfs[genre]
                 predictions = utils.test(clf, x_test)
+                rmse = utils.rmse(y_test, predictions)
                 p_results = update_fold_results(cxt_test, y_test, predictions)
                 results_per_val_fold[int(val_fold)][genre] = p_results[genre]
+                print '  testing on val fold %d, acc %s for genre %s, rmse %s' % (int(val_fold), p_results[genre][3], genre, rmse)
         
         print ' computing averages of train folds %s for test fold %s' % (train_folds, int(test_fold))
         avg_results = defaultdict(lambda: defaultdict(int))
