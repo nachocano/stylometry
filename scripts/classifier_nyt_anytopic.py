@@ -5,6 +5,29 @@ import numpy as np
 from collections import defaultdict
 import utils
 
+# can be 1 or 2 now, damn it
+def update_fold_results(y_test, predictions):
+    values = defaultdict(int)
+    for i in xrange(y_test.shape[0]):
+        if predictions[i] == y_test[i]:
+            if predictions[i] == 2:
+                values['TP'] += 1
+            else: 
+                values['TN'] += 1
+        else:
+            if predictions[i] == 2 and y_test[i] == 1:
+                values['FP'] += 1
+            else:
+                values['FN'] += 1
+
+    total_count = values['TP'] + values['TN'] + values['FP'] + values['FN']
+    assert total_count == y_test.shape[0], "invalid total count %d, should be %d" % (total_count, y_test.shape[0])
+    prec = utils.get_precision(values['TP'], values['FP'])
+    rec = utils.get_recall(values['TP'], values['FN'])
+    f1 = utils.get_f1(prec, rec)
+    acc = utils.get_accuracy(values['TP'], values['TN'], values['FP'], values['FN'])
+    return (prec, rec, f1, acc)   
+
 def build_data(x, y, cxt, test_fold):
     x_train_list = []
     y_train_list = []
@@ -60,25 +83,26 @@ def main():
     # divide train and test based on fold
     results = {}
     for fold in folds:
-        print 'executing fold %d ----' % int(fold)
+        print 'executing fold %d ' % int(fold)
         x_train, y_train, cxt_train, x_test, y_test, cxt_test = build_data(x, y, cxt, fold)
         best_accuracies = defaultdict(int)
         clf_best = None
         # tunning model on validation data per fold
         for params in parameters:
-            print 'param %s' % params
+            print ' tunning on validation, param %s' % params
             clf = utils.create_classifier(args.classifier, params)
             predictions = utils.execute(clf, x_train, y_train, x_valid)
-            p_results = utils.update_fold_results(y_valid, predictions)
+            p_results = update_fold_results(y_valid, predictions)
             acc = p_results[3]
             if acc > best_accuracies[int(fold)]:
-                print 'updating best results for fold %s' % fold
+                print ' updating best results for fold %s with param %s' % (fold, params)
                 best_accuracies[int(fold)] = acc
                 clf_best = clf
 
         # now test on test data
+        print 'testing on fold %d ' % int(fold)
         predictions = utils.test(clf_best, x_test)
-        p_results = utils.update_fold_results(y_test, predictions)
+        p_results = update_fold_results(y_test, predictions)
         results[int(fold)] = p_results
 
     print 'computing averages results'
