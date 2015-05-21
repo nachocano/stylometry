@@ -85,26 +85,28 @@ def main():
     for fold in folds:
         print 'executing fold %d ' % int(fold)
         x_train, y_train, cxt_train, x_test, y_test, cxt_test = build_data(x, y, cxt, fold)
-        best_accuracies = defaultdict(int)
+        # the one with lowest error
+        bests = {}
+        bests[int(fold)] = float("inf")
         clf_best = None
         # tunning model on validation data per fold
         for params in parameters:
             print ' tunning on validation, param %s' % params
             clf = utils.create_classifier(args.classifier, params)
             predictions = utils.execute(clf, x_train, y_train, x_valid)
-            p_results = update_fold_results(y_valid, predictions)
-            acc = p_results[3]
-            if acc > best_accuracies[int(fold)]:
-                print ' updating best results for fold %s with param %s, %s' % (fold, params, acc)
-                best_accuracies[int(fold)] = acc
+            rmse = utils.rmse(y_valid, predictions)
+            if rmse < bests[int(fold)]:
+                print ' updating best results for fold %s with param %s, %s' % (fold, params, rmse)
+                bests[int(fold)] = rmse
                 clf_best = clf
             else: 
-                print ' not updating result for fold %s with param %s, %s' % (fold, params, acc)
+                print ' not updating result for fold %s with param %s, %s' % (fold, params, rmse)
         # now test on test data
         predictions = utils.test(clf_best, x_test)
+        rmse = utils.rmse(y_test, predictions)
         p_results = update_fold_results(y_test, predictions)
         results[int(fold)] = p_results
-        print 'testing on fold %d, acc %s' % (int(fold), p_results[3])
+        print 'testing on fold %d, acc %s, rmse %s' % (int(fold), p_results[3], rmse)
 
     print 'computing averages results'
     avg_results = defaultdict(int)

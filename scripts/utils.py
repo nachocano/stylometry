@@ -57,13 +57,17 @@ def create_classifier(classifier, params):
         return ensemble.ExtraTreesClassifier(n_estimators=int(estimators), max_depth=int(depth), random_state=37)
     elif classifier == 'lr':
         C = float(params)
-        return linear_model.LogisticRegression(C=C)
+        return linear_model.LogisticRegression(C=C, penalty='l2')
     elif classifier == 'svm':
         C = float(params)
         return svm.SVC(C=C)
     else:
         print 'unsupported classifier %s' % classifier
         exit(1)
+
+def rmse(y_truth, y_pred):
+    n = y_truth.shape[0]
+    return np.sqrt(1./n * np.sum((y_truth - y_pred)**2))
     
 def train(model, x, y):
     begin = time.time()
@@ -99,9 +103,7 @@ def build_parameters(classifier):
             for depth in depths:
                 parameters.append('%s,%s' % (estimator, depth))
     elif classifier == 'lr' or classifier == 'svm':
-        Cs = [0.1, 0.3, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0]
-        #Cs = [1000.0, 10000.0, 100000.0]
-        #Cs = [0.01, 0.1, 1.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0]
+        Cs = [0.1, 0.3, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0]
         parameters.extend(Cs)
     else:
         print 'unsupported classifier %s' % classifier
