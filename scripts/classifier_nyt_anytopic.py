@@ -95,15 +95,16 @@ def main():
             p_results = update_fold_results(y_valid, predictions)
             acc = p_results[3]
             if acc > best_accuracies[int(fold)]:
-                print ' updating best results for fold %s with param %s' % (fold, params)
+                print ' updating best results for fold %s with param %s, %s' % (fold, params, acc)
                 best_accuracies[int(fold)] = acc
                 clf_best = clf
-
+            else: 
+                print ' not updating result for fold %s with param %s, %s' % (fold, params, acc)
         # now test on test data
-        print 'testing on fold %d ' % int(fold)
         predictions = utils.test(clf_best, x_test)
         p_results = update_fold_results(y_test, predictions)
         results[int(fold)] = p_results
+        print 'testing on fold %d, acc %s' % (int(fold), p_results[3])
 
     print 'computing averages results'
     avg_results = defaultdict(int)

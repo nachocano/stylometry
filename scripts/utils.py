@@ -100,6 +100,8 @@ def build_parameters(classifier):
                 parameters.append('%s,%s' % (estimator, depth))
     elif classifier == 'lr' or classifier == 'svm':
         Cs = [0.1, 0.3, 0.5, 1.0, 2.0, 10.0, 100.0, 1000.0]
+        #Cs = [1000.0, 10000.0, 100000.0]
+        #Cs = [0.01, 0.1, 1.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0]
         parameters.extend(Cs)
     else:
         print 'unsupported classifier %s' % classifier

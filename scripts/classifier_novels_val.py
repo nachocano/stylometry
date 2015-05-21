@@ -94,12 +94,14 @@ def main():
             best_accuracies = defaultdict(int)
             best_clfs = {}
             for params in parameters:
+                print '  tunning with param %s' % params
                 clf = utils.create_classifier(args.classifier, params)
                 predictions = utils.execute(clf, x_train, y_train, x_val)
                 p_results = update_fold_results(cxt_val, y_val, predictions)
                 for genre in p_results:
                     acc_genre = p_results[genre][3]
                     if acc_genre > best_accuracies[genre]:
+                        print '   updating best result for genre %s for val fold %s, %s' % (genre, val_fold, acc_genre)
                         best_accuracies[genre] = acc_genre
                         best_clfs[genre] = deepcopy(clf)
             for genre in best_clfs:
