@@ -67,18 +67,18 @@ def create_classifier(classifier, params):
     
 def train(model, x, y):
     begin = time.time()
-    print 'training classifier'
+    #print 'training classifier'
     m = model.fit(x, y)
     elapsed_run = time.time() - begin
-    print 'training took %s' % elapsed_run
+    #print 'training took %s' % elapsed_run
     return m
 
 def test(model, x):
     begin = time.time()
-    print 'testing classifier'
+    #print 'testing classifier'
     pred = model.predict(x)
     elapsed_run = time.time() - begin
-    print 'testing took %s' % elapsed_run
+    #print 'testing took %s' % elapsed_run
     return pred
 
 def evaluate(y_truth, y_pred):
