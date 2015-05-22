@@ -597,7 +597,7 @@ def main():
         print 'loading data for fold %d' % int(fold)
         # play with defaults later
         train, valid, test = load_data(train_set, test_set)
-        train_err, valid_err, test_err = train_lstm(train, valid, test, n_words=21547, max_epochs=10)
+        train_err, valid_err, test_err = train_lstm(train, valid, test, int(fold), n_words=21547, max_epochs=10)
         results[fold] = (train_err, valid_err, test_err)
         elapsed = time.time() - start
         print 'execution of fold %d took %s' % (int(fold), elapsed)
