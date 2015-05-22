@@ -19,9 +19,9 @@ def main():
     print 'processing %s' % counter 
     counter +=1
     splitted = line.split()
-    did = splitted[0].split("_")[0]
+    did, gid, _, _ = splitted[0].split("_")
     for l in splitted[1:]:
-      v = '%s_%s' % (l, did)
+      v = '%s_%s_%s' % (l, did, gid)
       if v in s:
         print '%s already in s' % v
       s.add(v)
