@@ -65,6 +65,14 @@ def create_classifier(classifier, params):
         print 'unsupported classifier %s' % classifier
         exit(1)
 
+def error(y_truth, y_pred):
+    n = y_truth.shape[0]
+    mismatches = 0
+    for i, value in enumerate(y_truth):
+        if y_pred[i] != value:
+            mismatches += 1
+    return float(mismatches)/n
+
 def rmse(y_truth, y_pred):
     n = y_truth.shape[0]
     return np.sqrt(1./n * np.sum((y_truth - y_pred)**2))

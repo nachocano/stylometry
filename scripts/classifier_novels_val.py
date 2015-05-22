@@ -42,7 +42,7 @@ def rmse_per_genre(cxt_test, y_test, predictions):
     result = {}
     for gen in utils.genres_dict.itervalues():
         assert len(values[gen]['truth']) == len(values[gen]['pred'])
-        rmse = utils.rmse(np.array(values[gen]['truth']), np.array(values[gen]['pred']))
+        rmse = utils.error(np.array(values[gen]['truth']), np.array(values[gen]['pred']))
         result[gen] = rmse
     return result
 
@@ -125,8 +125,9 @@ def main():
             for genre in best_clfs:
                 clf = best_clfs[genre]
                 predictions = utils.test(clf, x_test)
-                rmse = utils.rmse(y_test, predictions)
+                rmse = utils.error(y_test, predictions)
                 p_results = update_fold_results(cxt_test, y_test, predictions)
+                p_results[genre] +=  (rmse,)
                 results_per_val_fold[int(val_fold)][genre] = p_results[genre]
                 print '  testing on val fold %d, acc %s for genre %s, rmse %s' % (int(val_fold), p_results[genre][3], genre, rmse)
         
@@ -135,16 +136,18 @@ def main():
         for vf in results_per_val_fold:
             res = results_per_val_fold[vf]
             for gen in res:
-                p,r,f1,acc = res[gen]
+                p,r,f1,acc,error = res[gen]
                 avg_results[gen]['P'] += p
                 avg_results[gen]['R'] += r
                 avg_results[gen]['F'] += f1
                 avg_results[gen]['A'] += acc
+                avg_results[gen]['E'] += error
         for gen in avg_results:
             avg_results[gen]['P'] /= len(train_folds)
             avg_results[gen]['R'] /= len(train_folds)
             avg_results[gen]['F'] /= len(train_folds)
             avg_results[gen]['A'] /= len(train_folds)
+            avg_results[gen]['E'] /= len(train_folds)
         
         results_per_test_fold[int(test_fold)] = avg_results
 
@@ -158,15 +161,20 @@ def main():
             averages[gen]['R'] += avg[gen]['R']
             averages[gen]['F'] += avg[gen]['F']
             averages[gen]['A'] += avg[gen]['A']
+            averages[gen]['E'] += avg[gen]['E']
 
     avg_accuracy = 0
+    avg_errors = 0
     for gen in averages:
         averages[gen]['P'] /= len(folds)
         averages[gen]['R'] /= len(folds)
         averages[gen]['F'] /= len(folds)
         averages[gen]['A'] /= len(folds)
+        averages[gen]['E'] /= len(folds)
         avg_accuracy += averages[gen]['A']
+        avg_errors += averages[gen]['E']
     avg_accuracy /= len(averages)
+    avg_errors /= len(averages)
 
 
     print 'writing output file'
@@ -174,6 +182,7 @@ def main():
     for gen in averages:
         out.write('%s,%s,%s,%s,%s\n' % (gen, averages[gen]['P'], averages[gen]['R'], averages[gen]['F'], averages[gen]['A']))
     out.write('accuracy avg: %s\n' % avg_accuracy)
+    out.write('error avg: %s\n' % avg_errors)
     out.close()
 
     elapsed_run = time.time() - begin
