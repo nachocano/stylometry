@@ -20,7 +20,7 @@ def main():
     counter +=1
     splitted = line.split()
     did = splitted[0].split("_")[0]
-    for l in line[1:]:
+    for l in splitted[1:]:
       v = '%s_%s' % (l, did)
       if v in s:
         print '%s already in s' % v
