@@ -385,10 +385,10 @@ def train_lstm(train, valid, test, fold,
     optimizer=adadelta,  # sgd, adadelta and rmsprop available, sgd very hard to use, not recommanded (probably need momentum and decaying learning rate).
     encoder='lstm',  # TODO: can be removed must be lstm.
     saveto='lstm_model.npz',  # The best model will be saved there
-    validFreq=370,  # Compute the validation error after this number of update.
-    saveFreq=1110,  # Save the parameters after every saveFreq updates
-    batch_size=16,  # The batch size during training.
-    valid_batch_size=64,  # The batch size used for validation/test set.
+    validFreq=-1,  # Compute the validation error after this number of update.
+    saveFreq=-1,  # Save the parameters after every saveFreq updates
+    batch_size=32,  # The batch size during training.
+    valid_batch_size=32,  # The batch size used for validation/test set.
     
     # Parameter for extra option
     noise_std=0.,
@@ -457,6 +457,8 @@ def train_lstm(train, valid, test, fold,
     print "%d train examples" % len(train[0])
     print "%d valid examples" % len(valid[0])
     print "%d test examples" % len(test[0])
+    print "%d minibatches of %s samples for validation" % (len(kf_valid), valid_batch_size) 
+    print "%d minibatches of %s samples for test" % (len(kf_test), valid_batch_size)
 
     history_errs = []
     best_p = None
@@ -478,7 +480,7 @@ def train_lstm(train, valid, test, fold,
 
             # Get new shuffled index for the training set.
             kf = get_minibatches_idx(len(train[0]), batch_size, shuffle=True)
-            
+            print "%d minibatches of %s samples per epoch for train" % (len(kf), batch_size)
             for _, train_index in kf:
                 uidx += 1
                 use_noise.set_value(1.)
