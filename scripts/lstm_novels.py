@@ -515,7 +515,7 @@ def train_lstm(train, valid, test, fold,
                     else:
                         params = unzip(tparams)
                     numpy.savez(saveto, history_errs=history_errs, **params)
-                    pkl.dump(model_options, open('%s.pkl' % saveto, 'wb'), -1)
+                    pkl.dump(model_options, open('%s.pkl%s' % (saveto, fold), 'wb'), -1)
                     print 'done'
 
                 if numpy.mod(uidx, validFreq) == 0:
