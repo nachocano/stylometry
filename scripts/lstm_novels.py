@@ -581,6 +581,8 @@ def train_lstm(train, valid, test, fold,
 def main():
     parser = argparse.ArgumentParser(description='TODO')
     parser.add_argument('-i', '--input_file', required=True)
+    parser.add_argument('-l', '--maxlen', required=False, type=int, default=101)
+    parser.add_argument('-w', '--n_words', required=False, type=int, default=3481)
     args = parser.parse_args()
 
     data = get_data(args.input_file)
@@ -589,6 +591,7 @@ def main():
 
     folds = numpy.unique(cxt[:,2])
     results = {}
+    begin = time.time()
     for fold in folds:
         start = time.time()
         print 'executing fold %d' % int(fold)
@@ -598,12 +601,13 @@ def main():
         test_set = (x_test, y_test)
         print 'loading data for fold %d' % int(fold)
         # play with defaults later
-        train, valid, test = load_data(train_set, test_set, maxlen=101, n_words=3481, valid_portion=0.05)
-        train_err, valid_err, test_err = train_lstm(train, valid, test, int(fold), n_words=3481, max_epochs=500)
+        train, valid, test = load_data(train_set, test_set, maxlen=args.maxlen, n_words=args.n_words, valid_portion=0.05)
+        train_err, valid_err, test_err = train_lstm(train, valid, test, int(fold), n_words=args.n_words, max_epochs=500)
         results[fold] = (train_err, valid_err, test_err)
         elapsed = time.time() - start
         print 'execution of fold %d took %s' % (int(fold), elapsed)
-
+    elapsed = time.time() - begin
+    print 'whole execution took %s' % elapsed
     train_errs = 0.
     valid_errs = 0.
     test_errs = 0.
