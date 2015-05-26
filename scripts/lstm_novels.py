@@ -385,10 +385,10 @@ def train_lstm(train, valid, test, fold,
     optimizer=adadelta,  # sgd, adadelta and rmsprop available, sgd very hard to use, not recommanded (probably need momentum and decaying learning rate).
     encoder='lstm',  # TODO: can be removed must be lstm.
     saveto='lstm_model.npz',  # The best model will be saved there
-    validFreq=-1,  # Compute the validation error after this number of update.
-    saveFreq=-1,  # Save the parameters after every saveFreq updates
-    batch_size=32,  # The batch size during training.
-    valid_batch_size=32,  # The batch size used for validation/test set.
+    validFreq=370,  # Compute the validation error after this number of update.
+    saveFreq=1110,  # Save the parameters after every saveFreq updates
+    batch_size=8,  # The batch size during training.
+    valid_batch_size=16,  # The batch size used for validation/test set.
     
     # Parameter for extra option
     noise_std=0.,
@@ -475,17 +475,17 @@ def train_lstm(train, valid, test, fold,
     try:
         for eidx in xrange(max_epochs):
             etime = time.time()
-            print 'running epoch %s for fold %s ....' % (eidx, fold)
+            #print 'running epoch %s for fold %s ....' % (eidx, fold)
             n_samples = 0
 
             # Get new shuffled index for the training set.
             kf = get_minibatches_idx(len(train[0]), batch_size, shuffle=True)
-            print "%d minibatches of %s samples per epoch for train" % (len(kf), batch_size)
+            #print "%d minibatches of %s samples per epoch for train" % (len(kf), batch_size)
             for _, train_index in kf:
                 uidx += 1
                 use_noise.set_value(1.)
                 ustart = time.time()
-                print ' running update %s ...' % uidx
+                #print ' running update %s ...' % uidx
 
                 # Select the random examples for this minibatch
                 y = [train[1][t] for t in train_index]
@@ -545,10 +545,10 @@ def train_lstm(train, valid, test, fold,
                             print 'early stop!'
                             estop = True
                             break
-                print ' update %s took %s' % (uidx, time.time() - ustart)
+                #print ' update %s took %s' % (uidx, time.time() - ustart)
 
             print 'seen %d samples in fold %s' % (n_samples, fold)
-            print 'epoch %d for fold %s took %s' % (eidx, fold, time.time() - etime)
+            #print 'epoch %d for fold %s took %s' % (eidx, fold, time.time() - etime)
             if estop:
                 break
 
@@ -598,8 +598,8 @@ def main():
         test_set = (x_test, y_test)
         print 'loading data for fold %d' % int(fold)
         # play with defaults later
-        train, valid, test = load_data(train_set, test_set)
-        train_err, valid_err, test_err = train_lstm(train, valid, test, int(fold), n_words=21547, max_epochs=10)
+        train, valid, test = load_data(train_set, test_set, maxlen=101, n_words=3481, valid_portion=0.05)
+        train_err, valid_err, test_err = train_lstm(train, valid, test, int(fold), n_words=3481, max_epochs=500)
         results[fold] = (train_err, valid_err, test_err)
         elapsed = time.time() - start
         print 'execution of fold %d took %s' % (int(fold), elapsed)
