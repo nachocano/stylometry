@@ -55,14 +55,14 @@ public class ParserDriver {
 		if (!outputF.exists()) {
 			outputF.mkdir();
 		}
-		// for (final File genreFolder : inputF.listFiles()) {
-		// if (genreFolder.isFile()) {
-		// continue;
-		// }
-		System.out.println("genre folder: " + inputF.getName());
-		final File genreOutputF = new File(outputF, inputF.getName());
+		 for (final File genreFolder : inputF.listFiles()) {
+		 if (genreFolder.isFile()) {
+		 continue;
+		 }
+		System.out.println("genre folder: " + genreFolder.getName());
+		final File genreOutputF = new File(outputF, genreFolder.getName());
 		genreOutputF.mkdir();
-		for (final File foldFolder : inputF.listFiles()) {
+		for (final File foldFolder : genreFolder.listFiles()) {
 			if (foldFolder.isFile()) {
 				continue;
 			}
@@ -91,7 +91,7 @@ public class ParserDriver {
 				}
 			}
 		}
-		// }
+		}
 		System.out.println("created folders and files. processing...");
 		final long start = System.currentTimeMillis();
 
