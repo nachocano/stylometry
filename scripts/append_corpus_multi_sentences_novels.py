@@ -33,7 +33,9 @@ def main():
             did = document[:document.find('.')] # removing extension
             i = 0
             for line in open(d).read().splitlines():
-              print 'SENT_%s_%s_%s_%s_%d %s' % (did, gid, fid, label, i, line)
+              if line.strip() == '':
+                continue
+              print 'SENT_%s_%s_%s_%s_%d %s' % (did, gid, fid, label, i, line.strip())
               i += 1
             
 if __name__ == '__main__':
